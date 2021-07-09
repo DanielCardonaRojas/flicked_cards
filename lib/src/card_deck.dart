@@ -1,29 +1,9 @@
 import 'dart:math';
 
+import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
-part './stacked_animation.dart';
-part './carousel_animation.dart';
-
-typedef ProgressBuilder = Widget Function(int, double, BuildContext);
-typedef SwipeCompletion = void Function(int);
-enum SwipeDirection { left, right }
-
-extension SwipeDirectionValue on SwipeDirection {
-  double get value {
-    switch (this) {
-      case (SwipeDirection.left):
-        return -1;
-      case (SwipeDirection.right):
-        return 1;
-      default:
-        return 0;
-    }
-  }
-
-  bool get isLeft => this == SwipeDirection.left;
-  bool get isRight => this == SwipeDirection.right;
-}
+import 'card_deck_animation.dart';
 
 class CardDeck extends StatefulWidget {
   final ProgressBuilder builder;
@@ -32,7 +12,7 @@ class CardDeck extends StatefulWidget {
   final CardDeckAnimation animationStyle;
   final double? backBackMinOpacity;
   final SwipeDirection dismissDirection;
-  final bool asStack;
+  final bool debug;
 
   bool reversible;
   bool allowsBothDirections;
@@ -50,7 +30,7 @@ class CardDeck extends StatefulWidget {
     this.backBackMinOpacity,
     this.dismissDirection = SwipeDirection.left,
     this.allowsBothDirections = true,
-    this.asStack = false,
+    this.debug = false,
   })  : this.animationStyle = animationStyle ?? CardDeckAnimation.stacked(),
         super(key: key) {
     if (reversible) {
@@ -186,7 +166,9 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
             bottom: 0,
             right: 0,
             left: 0,
-            child: widget.asStack ? _cardStack(context) : _cardQueue(context),
+            child: widget.animationStyle.usesInvertedLayout
+                ? _cardStack(context)
+                : _cardQueue(context),
           ),
         ],
       ),
@@ -198,8 +180,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
         widget.reversible &&
         movingDirection != null;
 
-    final config = AnimationConfig(
-        asStack: widget.asStack,
+    final config = AnimationState(
         dismissDirection: widget.dismissDirection,
         reversible: widget.reversible,
         reversing: reversing,
@@ -208,48 +189,18 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return Stack(
       children: [
         // Previous Card
-        if (_currentIndex - 1 > 0)
-          Transform(
-            alignment: widget.animationStyle.visibleCardFractionOffset,
-            transform:
-                widget.animationStyle.previousCardAnimation(config.copyWith()),
-            child: Column(children: [
-              Text('Previous'),
-              Expanded(child: widget.builder(_currentIndex - 1, 1, context)),
-            ]),
-          ),
+        if (_currentIndex > 1) _buildPreviousCard(config, context),
         if (_currentIndex < widget.count)
           // Current Card
-          Transform(
-            alignment: widget.animationStyle.visibleCardFractionOffset,
-            transform: widget.animationStyle.visibleCardAnimation(config),
-            child: Column(children: [
-              Text('Current'),
-              Expanded(
-                  child: widget.builder(
-                      _currentIndex, _signedProgress.abs(), context)),
-            ]),
-          ),
+          _buildCurrentCard(config, context),
         if (_currentIndex + 1 < widget.count)
           // Next Card
-          Transform(
-            alignment: widget.animationStyle.nextCardFractionOffset,
-            transform:
-                widget.animationStyle.nextCardAnimation(config.copyWith()),
-            child: Column(
-              children: [
-                Text('Next'),
-                Expanded(
-                    child: widget.builder(
-                        _currentIndex + 1, _invertedProgress, context)),
-              ],
-            ),
-          ),
+          _buildNextCard(config, context),
       ],
     );
   }
 
-  void _buildCache(AnimationConfig config, BuildContext context) {
+  void _buildCache(AnimationState config, BuildContext context) {
     if (_currentIndex > 1) {
       _cached = List.generate(_currentIndex - 2, (index) {
         // final progressIncrement = 1 / _currentIndex * index.toDouble();
@@ -270,8 +221,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
         widget.reversible &&
         movingDirection != null;
 
-    final config = AnimationConfig(
-        asStack: widget.asStack,
+    final config = AnimationState(
         dismissDirection: widget.dismissDirection,
         reversible: widget.reversible,
         reversing: reversing,
@@ -281,24 +231,9 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
       children: [
         if (_currentIndex + 1 < widget.count)
           // Next card
-          Transform(
-            transform:
-                widget.animationStyle.nextCardAnimation(config.copyWith()),
-            alignment: widget.animationStyle.nextCardFractionOffset,
-            child: Opacity(
-                opacity:
-                    (_signedProgress.abs() + (widget.backBackMinOpacity ?? 1))
-                        .clamp(0, 1),
-                child: widget.builder(
-                    _currentIndex + 1, _signedProgress.abs(), context)),
-          ),
+          _buildNextCard(config, context),
         // Visible Card
-        Transform(
-          alignment: widget.animationStyle.visibleCardFractionOffset,
-          transform:
-              widget.animationStyle.visibleCardAnimation(config.copyWith()),
-          child: widget.builder(_currentIndex, 1, context),
-        ),
+        _buildCurrentCard(config, context),
         if (widget.reversible && _currentIndex > 0)
           // Previous Card
           Transform(
@@ -310,97 +245,53 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
       ],
     );
   }
-}
 
-class AnimationConfig {
-  final SwipeDirection dismissDirection;
-  final bool reversible;
-  final bool reversing;
-  final bool asStack;
-  double signedProgress = 0;
-
-  AnimationConfig(
-      {required this.dismissDirection,
-      required this.reversible,
-      required this.reversing,
-      required this.asStack,
-      required this.signedProgress});
-
-  double get invertedProgress =>
-      dismissDirection.value - signedProgress.abs() * -1;
-  double get visibleCardProgress => reversing ? 0 : signedProgress;
-  double get reversedCardProgress =>
-      reversing ? invertedProgress : dismissDirection.value;
-
-  AnimationConfig offsetBy(double offset) {
-    return copyWith(signedProgress: signedProgress + offset);
+  Transform _buildPreviousCard(AnimationState config, BuildContext context) {
+    return _buildCard(
+        config: config,
+        context: context,
+        animator: widget.animationStyle.previousCardAnimation,
+        offset: widget.animationStyle.visibleCardFractionOffset,
+        index: _currentIndex - 1,
+        tag: widget.debug ? 'Previous' : null);
   }
 
-  AnimationConfig scaledBy(double offset) {
-    return copyWith(signedProgress: signedProgress * offset);
+  Transform _buildCurrentCard(AnimationState config, BuildContext context) {
+    return _buildCard(
+        config: config,
+        context: context,
+        animator: widget.animationStyle.visibleCardAnimation,
+        offset: widget.animationStyle.visibleCardFractionOffset,
+        index: _currentIndex,
+        tag: widget.debug ? 'Current' : null);
   }
 
-  AnimationConfig freezedWhenReversed() {
-    return copyWith(signedProgress: reversing ? 0 : signedProgress);
+  Transform _buildNextCard(AnimationState config, BuildContext context) {
+    return _buildCard(
+        config: config,
+        context: context,
+        animator: widget.animationStyle.nextCardAnimation,
+        offset: widget.animationStyle.nextCardFractionOffset,
+        index: _currentIndex + 1,
+        tag: widget.debug ? 'Next' : null);
   }
 
-  AnimationConfig copyWith({double? signedProgress}) {
-    return AnimationConfig(
-        asStack: asStack,
-        dismissDirection: dismissDirection,
-        reversible: reversible,
-        reversing: reversing,
-        signedProgress: signedProgress ?? this.signedProgress);
-  }
-
-  void log() {
-    print('% $signedProgress');
-  }
-
-  AnimationConfig mappedBy({required double outMin, required double outMax}) {
-    final newProgress = MapRange.withIntervals(
-            inMin: -1, inMax: 1, outMin: outMin, outMax: outMax)
-        .call(signedProgress)
-        .toDouble();
-    return copyWith(signedProgress: newProgress);
-  }
-
-  AnimationConfig modifiedBy(double Function(double) expression) {
-    return copyWith(signedProgress: expression(signedProgress));
-  }
-
-  AnimationConfig clamped({required double outMin, required double outMax}) {
-    return copyWith(signedProgress: signedProgress.clamp(outMin, outMax));
-  }
-}
-
-typedef CardDeckAnimator = Matrix4 Function(AnimationConfig);
-
-abstract class CardDeckAnimation {
-  FractionalOffset get visibleCardFractionOffset =>
-      FractionalOffset.bottomCenter;
-
-  FractionalOffset get nextCardFractionOffset => FractionalOffset.bottomCenter;
-
-  CardDeckAnimator get visibleCardAnimation;
-
-  CardDeckAnimator get nextCardAnimation;
-
-  CardDeckAnimator get previousCardAnimation;
-
-  static CardDeckAnimation stacked() => CardDeckStackedAnimation();
-  static CardDeckAnimation carousel() => CardDeckCarouselAnimation();
-}
-
-typedef RangeMapper = num Function(num);
-
-extension MapRange on num {
-  static RangeMapper withIntervals(
-      {required num inMin,
-      required num inMax,
-      required num outMin,
-      required num outMax}) {
-    return (num value) =>
-        (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+  Transform _buildCard(
+      {required AnimationState config,
+      required BuildContext context,
+      required CardDeckAnimator animator,
+      required FractionalOffset offset,
+      required int index,
+      required String? tag}) {
+    return Transform(
+      alignment: offset,
+      transform: animator(config.copyWith()),
+      child: Column(
+        children: [
+          if (tag != null) Text(tag),
+          Expanded(child: widget.builder(index, _invertedProgress, context)),
+        ],
+      ),
+    );
   }
 }

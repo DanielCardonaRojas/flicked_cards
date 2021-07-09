@@ -1,19 +1,26 @@
-part of './card_deck.dart';
+part of '../card_deck_animation.dart';
 
 class CardDeckStackedAnimation extends CardDeckAnimation {
   final double rotationAngle;
   final double sizeCompressionFactor;
   final double stackOffset;
+  final bool inverted;
 
   CardDeckStackedAnimation(
       {this.rotationAngle = pi / 2,
+      this.inverted = false,
       this.sizeCompressionFactor = 0.8,
       this.stackOffset = 90});
 
   @override
+  bool get usesInvertedLayout => inverted;
+
+  bool get asStack => usesInvertedLayout;
+
+  @override
   CardDeckAnimator get nextCardAnimation {
     return (config) {
-      if (config.asStack) {
+      if (asStack) {
         return _rotateAnimation(config
             .offsetBy(config.dismissDirection.value * -1)
             .clamped(outMin: -1, outMax: 1));
@@ -27,7 +34,7 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
   @override
   CardDeckAnimator get previousCardAnimation {
     return (config) {
-      if (config.reversing && config.asStack) {
+      if (config.reversing && asStack) {
         return Matrix4.identity();
       }
       return _rotateAnimation(config
@@ -40,24 +47,23 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
   CardDeckAnimator get visibleCardAnimation {
     return (config) {
       config.log();
-      if (!config.reversing && config.asStack) {
+      if (!config.reversing && asStack) {
         return Matrix4.identity();
-      } else if (config.reversing && !config.asStack) {
+      } else if (config.reversing && !asStack) {
         return _peekAnimation(config
             .modifiedBy((p) => 0.5 * p + 0.5 * config.dismissDirection.value));
       }
-      return _rotateAnimation(
-          !config.asStack ? config.freezedWhenReversed() : config);
+      return _rotateAnimation(!asStack ? config.freezedWhenReversed() : config);
     };
   }
 
-  Matrix4 _rotateAnimation(AnimationConfig config) {
+  Matrix4 _rotateAnimation(AnimationState config) {
     return Matrix4.identity()
       ..rotateZ(pi / 2 * config.signedProgress)
       ..translate(config.signedProgress * 300);
   }
 
-  Matrix4 _peekAnimation(AnimationConfig config) {
+  Matrix4 _peekAnimation(AnimationState config) {
     final verticalDisplacement = MapRange.withIntervals(
             inMin: -1.0,
             inMax: 1.0,

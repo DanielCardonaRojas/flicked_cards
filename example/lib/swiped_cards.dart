@@ -24,8 +24,7 @@ class AnimationExample3Page extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 400, 10, 0),
             child: CardDeck(
               count: 6,
-              reversible: true,
-              asStack: true,
+              reversible: false,
               animationStyle: CardDeckAnimation.stacked(),
               dismissDirection: SwipeDirection.left,
               onSwipedLeft: (idx) => print('>>> swiped left $idx'),

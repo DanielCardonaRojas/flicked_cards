@@ -1,4 +1,4 @@
-part of './card_deck.dart';
+part of '../card_deck_animation.dart';
 
 class CardDeckCarouselAnimation extends CardDeckAnimation {
   static const double cardSpacing = 300;
@@ -33,7 +33,7 @@ class CardDeckCarouselAnimation extends CardDeckAnimation {
     return (config) => _baseAnimation(config);
   }
 
-  Matrix4 _baseAnimation(AnimationConfig config) {
+  Matrix4 _baseAnimation(AnimationState config) {
     return Matrix4.identity()..translate(cardSpacing * config.signedProgress);
   }
 }

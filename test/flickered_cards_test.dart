@@ -4,8 +4,7 @@ import 'package:flickered_cards/flickered_cards.dart';
 
 void main() {
   test('adds one to input values', () {
-    final config = AnimationConfig(
-        asStack: true,
+    final config = AnimationState(
         dismissDirection: SwipeDirection.left,
         reversible: true,
         reversing: false,
