@@ -1,9 +1,9 @@
 part of '../card_deck_animation.dart';
 
 class CardDeckCarouselAnimation extends CardDeckAnimation {
-  static const double cardSpacing = 300;
+  final double cardSpacing;
 
-  CardDeckCarouselAnimation();
+  CardDeckCarouselAnimation({this.cardSpacing = 300});
 
   // @override
   // void configure(bool reversing, double signedProgress) {

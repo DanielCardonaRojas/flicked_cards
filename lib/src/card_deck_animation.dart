@@ -27,8 +27,10 @@ abstract class CardDeckAnimation {
   /// Also note that for the index 0 Previous will not be shown.
   bool get usesInvertedLayout => false;
 
-  static CardDeckAnimation stacked() => CardDeckStackedAnimation();
-  static CardDeckAnimation carousel() => CardDeckCarouselAnimation();
+  static CardDeckAnimation stacked({bool inverted = false}) =>
+      CardDeckStackedAnimation(inverted: inverted);
+  static CardDeckAnimation carousel({double? cardSpacing}) =>
+      CardDeckCarouselAnimation(cardSpacing: cardSpacing ?? 320);
 }
 
 class AnimationState {

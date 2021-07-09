@@ -26,6 +26,10 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
             .clamped(outMin: -1, outMax: 1));
       }
 
+      if (!config.reversible) {
+        return _peekAnimation(config.modifiedBy((p) => -p.abs()));
+      }
+
       return _peekAnimation(
           config.scaledBy(config.dismissDirection.value * -1));
     };

@@ -134,6 +134,22 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     _finishingAnimationController?.forward();
   }
 
+  void _buildCache(AnimationState config, BuildContext context) {
+    if (_currentIndex > 1) {
+      _cached = List.generate(_currentIndex - 2, (index) {
+        // final progressIncrement = 1 / _currentIndex * index.toDouble();
+        final progressIncrement =
+            1 / widget.count.toDouble() * index.toDouble();
+        return Transform(
+          alignment: widget.animationStyle.visibleCardFractionOffset,
+          transform: widget.animationStyle.nextCardAnimation(config),
+          child: widget.builder(index, 1, context),
+        );
+      });
+    }
+    print('>>> Cached length ${_cached.length}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -200,22 +216,6 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     );
   }
 
-  void _buildCache(AnimationState config, BuildContext context) {
-    if (_currentIndex > 1) {
-      _cached = List.generate(_currentIndex - 2, (index) {
-        // final progressIncrement = 1 / _currentIndex * index.toDouble();
-        final progressIncrement =
-            1 / widget.count.toDouble() * index.toDouble();
-        return Transform(
-          alignment: widget.animationStyle.visibleCardFractionOffset,
-          transform: widget.animationStyle.nextCardAnimation(config),
-          child: widget.builder(index, 1, context),
-        );
-      });
-    }
-    print('>>> Cached length ${_cached.length}');
-  }
-
   Stack _cardQueue(BuildContext context) {
     final reversing = movingDirection != widget.dismissDirection &&
         widget.reversible &&
@@ -236,12 +236,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
         _buildCurrentCard(config, context),
         if (widget.reversible && _currentIndex > 0)
           // Previous Card
-          Transform(
-            alignment: widget.animationStyle.visibleCardFractionOffset,
-            transform: widget.animationStyle.previousCardAnimation(config),
-            child:
-                widget.builder(_currentIndex - 1, _invertedProgress, context),
-          ),
+          _buildPreviousCard(config, context),
       ],
     );
   }
