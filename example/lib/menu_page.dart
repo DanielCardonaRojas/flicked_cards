@@ -1,9 +1,5 @@
-import 'package:animation_examples/animation_example1.dart';
-import 'package:animation_examples/swiped_cards.dart';
 import 'package:example/swiped_cards.dart';
 import 'package:flutter/material.dart';
-
-import 'animation_example2.dart';
 
 class MenuPage extends StatelessWidget {
   @override

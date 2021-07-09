@@ -1,0 +1,28 @@
+name: Test
+# Trigger the workflow on push or pull request
+on: [push, pull_request]
+#A workflow run is made up of one or more jobs. Jobs run in parallel by default.
+jobs:
+  test-app:
+    #The type of machine to run the job on. [windows,macos, ubuntu , self-hosted]
+    env:
+      working-directory: ./app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "2.0.0"
+      - name: "Fetch dependencies"
+        run: flutter pub get
+      - name: "Install lcov"
+        run: brew install lcov
+      - name: "Run tests"
+        run: flutter test --coverage
+      - name: "Summarize coverage data"
+        run: lcov -r coverage/lcov.info
+      - name: "Publish to Codecov"
+        uses: codecov/codecov-action@v1.2.1
+        with:
+          file: coverage/lcov.info
+          token: "${{ secrets.CODECOV_TOKEN }}"

@@ -1,4 +1,6 @@
 # Miscellaneous
+test/.test_coverage.dart
+coverage/
 *.class
 *.log
 *.pyc
