@@ -3,7 +3,9 @@ part of '../card_deck_animation.dart';
 class CardDeckCarouselAnimation extends CardDeckAnimation {
   final double cardSpacing;
 
-  CardDeckCarouselAnimation({this.cardSpacing = 300});
+  CardDeckCarouselAnimation({
+    this.cardSpacing = 300,
+  });
 
   // @override
   // void configure(bool reversing, double signedProgress) {
@@ -18,22 +20,22 @@ class CardDeckCarouselAnimation extends CardDeckAnimation {
 
   @override
   CardDeckAnimator get nextCardAnimation {
-    return (config) => _baseAnimation(
-        config.offsetBy(config.dismissDirection.value * -1)..log());
+    return (progress) => _baseAnimation(progress.computedWith(
+        (p) => p.offsetBy(state.config.dismissDirection.value * -1)));
   }
 
   @override
   CardDeckAnimator get previousCardAnimation {
-    return (config) =>
-        _baseAnimation(config.offsetBy(config.dismissDirection.value));
+    return (progress) => _baseAnimation(progress
+        .computedWith((p) => p.offsetBy(state.config.dismissDirection.value)));
   }
 
   @override
   CardDeckAnimator get visibleCardAnimation {
-    return (config) => _baseAnimation(config);
+    return (state) => _baseAnimation(state);
   }
 
-  Matrix4 _baseAnimation(AnimationState config) {
-    return Matrix4.identity()..translate(cardSpacing * config.signedProgress);
+  Matrix4 _baseAnimation(AnimationProgress state) {
+    return Matrix4.identity()..translate(cardSpacing * state.computed);
   }
 }

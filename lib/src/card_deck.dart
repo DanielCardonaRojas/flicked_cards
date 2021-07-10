@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
+import 'animation_state.dart';
 import 'card_deck_animation.dart';
 
 class CardDeck extends StatefulWidget {
@@ -13,10 +12,6 @@ class CardDeck extends StatefulWidget {
   final double? backBackMinOpacity;
   final SwipeDirection dismissDirection;
   final bool debug;
-
-  bool reversible;
-  bool allowsBothDirections;
-
   final int count;
 
   CardDeck({
@@ -26,66 +21,32 @@ class CardDeck extends StatefulWidget {
     required this.count,
     this.onSwipedLeft,
     this.onSwipedRight,
-    this.reversible = true,
     this.backBackMinOpacity,
     this.dismissDirection = SwipeDirection.left,
-    this.allowsBothDirections = true,
     this.debug = false,
-  })  : this.animationStyle = animationStyle ?? CardDeckAnimation.stacked(),
-        super(key: key) {
-    if (reversible) {
-      this.allowsBothDirections = true;
-    } else if (!allowsBothDirections) {
-      this.reversible = true;
-    }
-  }
+  }) : this.animationStyle = animationStyle ?? CardDeckAnimation.stacked();
 
   @override
   _CardDeckState createState() => _CardDeckState();
 }
 
 class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
-  int _currentIndex = 0;
-  double _positionX = 0;
-  double _signedProgress = 0; // Ranges from -1 to 1
-  List<Widget> _cached = [];
+  late AnimationState _animationState;
+
+  // List<Widget> _cached = [];
   AnimationController? _finishingAnimationController;
   Animation<double>? _finishingAnimation;
 
   static const _endAnimationDuration = Duration(milliseconds: 500);
-  static const _progressThreshold = 0.25;
-
-  SwipeDirection? get movingDirection {
-    if (_signedProgress < 0.0) return SwipeDirection.left;
-    if (_signedProgress > 0.0) return SwipeDirection.right;
-    return null;
-  }
-
-  double get _target {
-    final double target = _signedProgress.isNegative ? -1 : 1;
-    final advances = target * widget.dismissDirection.value == 1;
-    final targetIndex = _currentIndex + target * widget.dismissDirection.value;
-
-    if (_signedProgress.abs() < _progressThreshold) return 0.0;
-    if (targetIndex > widget.count - 1) return 0.0;
-    if (!advances && _currentIndex == 0) return 0.0;
-    return target;
-  }
-
-  int get _targetIndex {
-    if (widget.reversible) {
-      return (_currentIndex + _target.sign * widget.dismissDirection.value)
-          .clamp(0, widget.count - 1)
-          .toInt();
-    }
-
-    return (_currentIndex + 1).clamp(0, widget.count).toInt();
-  }
-
-  double get _invertedProgress => 1 - _signedProgress.abs();
 
   @override
   void initState() {
+    _animationState = AnimationState(
+      config: AnimationConfig(
+        cardCount: widget.count,
+        dismissDirection: widget.dismissDirection,
+      ),
+    );
     super.initState();
   }
 
@@ -94,39 +55,45 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _scrub({required double width, required double delta}) {
+  void _handleDrag({required double width, required double delta}) {
     setState(() {
-      _positionX += delta;
-      final centeredX = _positionX / width;
-      _signedProgress =
-          ((centeredX - 0.5) * 2).clamp(-1.0, 1.0); // Convert to range -1, 1
+      _animationState.update(delta: delta);
     });
   }
 
   void _completeAnimations() {
+    // _animationState.log();
     _finishingAnimationController =
         AnimationController(vsync: this, duration: _endAnimationDuration);
 
-    _finishingAnimation =
-        Tween<double>(begin: _signedProgress, end: _target).animate(
+    _finishingAnimation = Tween<double>(
+            begin: _animationState.progress.value,
+            end: _animationState.targetDirection)
+        .animate(
       CurvedAnimation(
           parent: _finishingAnimationController!, curve: Curves.linear),
     )
           ..addListener(() {
             setState(() {
-              _signedProgress = _finishingAnimation?.value ?? _signedProgress;
+              final targetValue = _finishingAnimation?.value;
+              if (targetValue == null) return;
+              _animationState.scrub(target: targetValue);
+              // _animationState = _animationState.copyWith();
             });
           })
           ..addStatusListener((status) {
-            if (status == AnimationStatus.completed && _target != 0) {
+            if (status == AnimationStatus.completed &&
+                _animationState.targetDirection != 0) {
               setState(() {
-                _currentIndex = _targetIndex;
-                if (_target.isNegative) {
-                  widget.onSwipedLeft?.call(_currentIndex);
+                _animationState.complete();
+
+                if (_animationState.targetDirection.isNegative) {
+                  widget.onSwipedLeft?.call(_animationState.currentIndex);
                 } else {
-                  widget.onSwipedRight?.call(_currentIndex);
+                  widget.onSwipedRight?.call(_animationState.currentIndex);
                 }
-                _signedProgress = 0;
+                _animationState.reset();
+                // _animationState = _animationState.copyWith();
               });
             }
           });
@@ -134,43 +101,24 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     _finishingAnimationController?.forward();
   }
 
-  void _buildCache(AnimationState config, BuildContext context) {
-    if (_currentIndex > 1) {
-      _cached = List.generate(_currentIndex - 2, (index) {
-        // final progressIncrement = 1 / _currentIndex * index.toDouble();
-        final progressIncrement =
-            1 / widget.count.toDouble() * index.toDouble();
-        return Transform(
-          alignment: widget.animationStyle.visibleCardFractionOffset,
-          transform: widget.animationStyle.nextCardAnimation(config),
-          child: widget.builder(index, 1, context),
-        );
-      });
-    }
-    print('>>> Cached length ${_cached.length}');
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    _animationState.configureWith(screenWidth: size.width);
+    _animationState.config.reversible = widget.animationStyle.canReverse;
+    widget.animationStyle.state = _animationState;
+    // _animationState.log();
 
     return GestureDetector(
       // behavior: HitTestBehavior.translucent,
       onHorizontalDragUpdate: (details) {
-        final advances =
-            (details.delta.dx * widget.dismissDirection.value.sign) > 0 ||
-                !widget.reversible;
-        if (!widget.allowsBothDirections && !advances) return;
-        if (advances && _currentIndex == widget.count - 1) return;
-
-        _scrub(width: size.width, delta: details.delta.dx);
+        _handleDrag(width: size.width, delta: details.delta.dx);
       },
       onHorizontalDragStart: (details) {
-        _positionX = size.width * .5;
+        _animationState.reset();
       },
       onHorizontalDragCancel: () {},
       onHorizontalDragEnd: (details) {
-        print('target: $_target targetIndex: $_targetIndex');
         _completeAnimations();
       },
       child: Stack(
@@ -192,87 +140,69 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
   }
 
   Stack _cardStack(BuildContext context) {
-    final reversing = movingDirection != widget.dismissDirection &&
-        widget.reversible &&
-        movingDirection != null;
-
-    final config = AnimationState(
-        dismissDirection: widget.dismissDirection,
-        reversible: widget.reversible,
-        reversing: reversing,
-        signedProgress: _signedProgress);
-
     return Stack(
       children: [
         // Previous Card
-        if (_currentIndex > 1) _buildPreviousCard(config, context),
-        if (_currentIndex < widget.count)
+        if (_animationState.currentIndex > 1)
+          _buildPreviousCard(_animationState, context),
+        if (_animationState.currentIndex < widget.count)
           // Current Card
-          _buildCurrentCard(config, context),
-        if (_currentIndex + 1 < widget.count)
+          _buildCurrentCard(_animationState, context),
+        if (_animationState.currentIndex + 1 < widget.count)
           // Next Card
-          _buildNextCard(config, context),
+          _buildNextCard(_animationState, context),
       ],
     );
   }
 
   Stack _cardQueue(BuildContext context) {
-    final reversing = movingDirection != widget.dismissDirection &&
-        widget.reversible &&
-        movingDirection != null;
-
-    final config = AnimationState(
-        dismissDirection: widget.dismissDirection,
-        reversible: widget.reversible,
-        reversing: reversing,
-        signedProgress: _signedProgress);
-
     return Stack(
       children: [
-        if (_currentIndex + 1 < widget.count)
+        if (_animationState.currentIndex + 1 < widget.count)
           // Next card
-          _buildNextCard(config, context),
+          _buildNextCard(_animationState, context),
         // Visible Card
-        _buildCurrentCard(config, context),
-        if (widget.reversible && _currentIndex > 0)
+        _buildCurrentCard(_animationState, context),
+        if (_animationState.config.reversible &&
+            _animationState.currentIndex > 0)
           // Previous Card
-          _buildPreviousCard(config, context),
+          _buildPreviousCard(_animationState, context),
       ],
     );
   }
 
   Transform _buildPreviousCard(AnimationState config, BuildContext context) {
     return _buildCard(
-        config: config,
+        state: config,
         context: context,
         animator: widget.animationStyle.previousCardAnimation,
         offset: widget.animationStyle.visibleCardFractionOffset,
-        index: _currentIndex - 1,
+        index: _animationState.currentIndex - 1,
         tag: widget.debug ? 'Previous' : null);
   }
 
   Transform _buildCurrentCard(AnimationState config, BuildContext context) {
     return _buildCard(
-        config: config,
+        state: config,
         context: context,
         animator: widget.animationStyle.visibleCardAnimation,
         offset: widget.animationStyle.visibleCardFractionOffset,
-        index: _currentIndex,
+        index: _animationState.currentIndex,
         tag: widget.debug ? 'Current' : null);
   }
 
   Transform _buildNextCard(AnimationState config, BuildContext context) {
     return _buildCard(
-        config: config,
+        state: config,
         context: context,
         animator: widget.animationStyle.nextCardAnimation,
         offset: widget.animationStyle.nextCardFractionOffset,
-        index: _currentIndex + 1,
+        index: _animationState.currentIndex + 1,
         tag: widget.debug ? 'Next' : null);
   }
 
   Transform _buildCard(
-      {required AnimationState config,
+      {required AnimationState state,
       required BuildContext context,
       required CardDeckAnimator animator,
       required FractionalOffset offset,
@@ -280,11 +210,11 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
       required String? tag}) {
     return Transform(
       alignment: offset,
-      transform: animator(config.copyWith()),
+      transform: animator(state.progress.copyWith()),
       child: Column(
         children: [
           if (tag != null) Text(tag),
-          Expanded(child: widget.builder(index, _invertedProgress, context)),
+          Expanded(child: widget.builder(index, 1, context)),
         ],
       ),
     );
