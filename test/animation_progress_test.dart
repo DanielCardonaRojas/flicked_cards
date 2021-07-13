@@ -16,8 +16,16 @@ void main() {
   test('Can mutate instance by chaining operations', () {
     final sut = AnimationProgress();
     sut.value = -1;
-    sut.apply((op) => op.modifiedBy((_) => 1));
+    sut.apply((op) => op.offsetBy(1));
     assert(sut.value == -1);
-    assert(sut.computed == 1);
+    assert(sut.computed == 0);
+  });
+
+  test('Can chain multiple operation', () {
+    final sut = AnimationProgress();
+    sut.value = -1;
+    sut.apply((op) => op.offsetBy(2).scaledBy(0.5));
+    assert(sut.value == -1);
+    assert(sut.computed == 0.5);
   });
 }

@@ -32,6 +32,10 @@ class CardDeck extends StatefulWidget {
 
 class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
   late AnimationState _animationState;
+  bool _isDragging = false;
+  bool _isAnimating = false;
+
+  bool get isIddle => !(_isDragging || _isAnimating);
 
   // List<Widget> _cached = [];
   AnimationController? _finishingAnimationController;
@@ -77,11 +81,15 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
             setState(() {
               final targetValue = _finishingAnimation?.value;
               if (targetValue == null) return;
+              _isAnimating = true;
               _animationState.scrub(target: targetValue);
               // _animationState = _animationState.copyWith();
             });
           })
           ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _isAnimating = false;
+            }
             if (status == AnimationStatus.completed &&
                 _animationState.targetDirection != 0) {
               setState(() {
@@ -115,10 +123,12 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
         _handleDrag(width: size.width, delta: details.delta.dx);
       },
       onHorizontalDragStart: (details) {
+        _isDragging = true;
         _animationState.reset();
       },
       onHorizontalDragCancel: () {},
       onHorizontalDragEnd: (details) {
+        _isDragging = false;
         _completeAnimations();
       },
       child: Stack(
@@ -185,7 +195,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return _buildCard(
         state: config,
         context: context,
-        animator: widget.animationStyle.visibleCardAnimation,
+        animator: widget.animationStyle.currentCardAnimation,
         offset: widget.animationStyle.visibleCardFractionOffset,
         index: _animationState.currentIndex,
         tag: widget.debug ? 'Current' : null);

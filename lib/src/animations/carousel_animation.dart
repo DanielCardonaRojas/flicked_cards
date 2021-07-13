@@ -31,7 +31,7 @@ class CardDeckCarouselAnimation extends CardDeckAnimation {
   }
 
   @override
-  CardDeckAnimator get visibleCardAnimation {
+  CardDeckAnimator get currentCardAnimation {
     return (state) => _baseAnimation(state);
   }
 

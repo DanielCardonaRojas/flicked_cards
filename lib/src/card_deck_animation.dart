@@ -17,7 +17,7 @@ abstract class CardDeckAnimation {
 
   FractionalOffset get nextCardFractionOffset => FractionalOffset.bottomCenter;
 
-  CardDeckAnimator get visibleCardAnimation;
+  CardDeckAnimator get currentCardAnimation;
 
   CardDeckAnimator get nextCardAnimation;
 

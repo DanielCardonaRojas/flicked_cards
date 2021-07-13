@@ -55,7 +55,7 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
   }
 
   @override
-  CardDeckAnimator get visibleCardAnimation {
+  CardDeckAnimator get currentCardAnimation {
     return (progress) {
       if (!state.reversing && asStack) {
         return Matrix4.identity();
