@@ -61,5 +61,5 @@ layouts:
 Note that depending on the index some of cards will not be displayed:
 
 ![](cards_initial_layout.png)
-![](cards_initial_layout.png)
+![](cards_final_layout.png)
 

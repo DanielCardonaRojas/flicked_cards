@@ -12,7 +12,7 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
     this.reversible = true,
     this.inverted = false,
     this.sizeCompressionFactor = 0.8,
-    this.stackOffset = 90,
+    this.stackOffset = 50,
   });
 
   @override
@@ -33,12 +33,10 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
       }
 
       if (!state.config.reversible) {
-        return _peekAnimation(
-            progress.computedWith((p) => p.modifiedBy((p) => -p.abs())));
+        return _peekAnimation2(progress: progress.value, index: 1);
       }
 
-      return _peekAnimation(progress.computedWith(
-          (p) => p.scaledBy(state.config.dismissDirection.value * -1)));
+      return _peekAnimation2(progress: progress.value, index: 1);
     };
   }
 
@@ -60,8 +58,7 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
       if (!state.reversing && asStack) {
         return Matrix4.identity();
       } else if (state.reversing && !asStack) {
-        return _peekAnimation(progress.computedWith((p) => p.modifiedBy(
-            (p) => 0.5 * p + 0.5 * state.config.dismissDirection.value)));
+        return _peekAnimation2(progress: progress.value, index: 0);
       }
 
       final freezedWhenReversed = progress
@@ -77,22 +74,13 @@ class CardDeckStackedAnimation extends CardDeckAnimation {
       ..translate(progress.computed * 300);
   }
 
-  Matrix4 _peekAnimation(AnimationProgress state) {
-    final verticalDisplacement = MapRange.withIntervals(
-            inMin: -1.0,
-            inMax: 1.0,
-            outMin: 0.0,
-            outMax: stackOffset.abs() * -1)
-        .call(state.value)
-        .toDouble();
-
-    final widthCompression = MapRange.withIntervals(
-            inMin: -1.0, inMax: 1.0, outMin: 1, outMax: sizeCompressionFactor)
-        .call(state.value)
-        .toDouble();
+  Matrix4 _peekAnimation2({required double progress, required int index}) {
+    final offset = -stackOffset * .5;
+    final y = offset * progress + index.toDouble() * offset;
+    final compression = 1 - (progress * 0.05 + index.toDouble() * 0.05);
 
     return Matrix4.identity()
-      ..translate(0.0, verticalDisplacement)
-      ..scale(widthCompression, widthCompression);
+      ..translate(0.0, y)
+      ..scale(compression, compression);
   }
 }
