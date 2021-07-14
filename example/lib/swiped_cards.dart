@@ -25,10 +25,10 @@ class AnimationExample3Page extends StatelessWidget {
             child: CardDeck(
               count: 6,
               debug: true,
-              animationStyle: CardDeckAnimation.stacked(inverted: false),
-              dismissDirection: SwipeDirection.left,
-              onSwipedLeft: (idx) => print('>>> swiped left $idx'),
-              onSwipedRight: (idx) => print('>>> swiped right $idx'),
+              dismissDirection: SwipeDirection.right,
+              animationStyle: CardAnimation.stacked()
+                ..usesInvertedLayout = true,
+              onSwiped: (idx, dir) => print('>>> $dir $idx'),
               builder: (index, progress, context) {
                 return Center(
                   child: Container(

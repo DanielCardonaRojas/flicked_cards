@@ -2,13 +2,12 @@ import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
 import 'animation_state.dart';
-import 'card_deck_animation.dart';
+import 'card_animation.dart';
 
 class CardDeck extends StatefulWidget {
   final ProgressBuilder builder;
-  final SwipeCompletion? onSwipedLeft;
-  final SwipeCompletion? onSwipedRight;
-  final CardDeckAnimation animationStyle;
+  final SwipeCompletion? onSwiped;
+  final CardAnimation animationStyle;
   final double? backBackMinOpacity;
   final SwipeDirection dismissDirection;
   final bool debug;
@@ -17,14 +16,13 @@ class CardDeck extends StatefulWidget {
   CardDeck({
     Key? key,
     required this.builder,
-    CardDeckAnimation? animationStyle,
+    CardAnimation? animationStyle,
     required this.count,
-    this.onSwipedLeft,
-    this.onSwipedRight,
+    this.onSwiped,
     this.backBackMinOpacity,
     this.dismissDirection = SwipeDirection.left,
     this.debug = false,
-  }) : this.animationStyle = animationStyle ?? CardDeckAnimation.stacked();
+  }) : this.animationStyle = animationStyle ?? CardStackAnimation();
 
   @override
   _CardDeckState createState() => _CardDeckState();
@@ -95,11 +93,12 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
               setState(() {
                 _animationState.complete();
 
-                if (_animationState.targetDirection.isNegative) {
-                  widget.onSwipedLeft?.call(_animationState.currentIndex);
-                } else {
-                  widget.onSwipedRight?.call(_animationState.currentIndex);
-                }
+                widget.onSwiped?.call(
+                  _animationState.currentIndex,
+                  _animationState.targetDirection.isNegative
+                      ? SwipeDirection.left
+                      : SwipeDirection.right,
+                );
                 _animationState.reset();
                 // _animationState = _animationState.copyWith();
               });
@@ -185,9 +184,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return _buildCard(
         state: config,
         context: context,
-        animator: widget.animationStyle.previousCardAnimation,
-        offset: widget.animationStyle.visibleCardFractionOffset,
-        index: _animationState.currentIndex - 1,
+        relativeIndex: -1,
         tag: widget.debug ? 'Previous' : null);
   }
 
@@ -195,9 +192,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return _buildCard(
         state: config,
         context: context,
-        animator: widget.animationStyle.currentCardAnimation,
-        offset: widget.animationStyle.visibleCardFractionOffset,
-        index: _animationState.currentIndex,
+        relativeIndex: 0,
         tag: widget.debug ? 'Current' : null);
   }
 
@@ -205,26 +200,29 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return _buildCard(
         state: config,
         context: context,
-        animator: widget.animationStyle.nextCardAnimation,
-        offset: widget.animationStyle.nextCardFractionOffset,
-        index: _animationState.currentIndex + 1,
+        relativeIndex: 1,
         tag: widget.debug ? 'Next' : null);
   }
 
   Transform _buildCard(
       {required AnimationState state,
       required BuildContext context,
-      required CardDeckAnimator animator,
-      required FractionalOffset offset,
-      required int index,
+      required int relativeIndex,
       required String? tag}) {
+    final offset = widget.animationStyle
+        .fractionalOffsetForCard(relativeIndex: relativeIndex);
+    final transformation =
+        widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
+
     return Transform(
       alignment: offset,
-      transform: animator(state.progress.copyWith()),
+      transform: transformation(state.progress.value),
       child: Column(
         children: [
           if (tag != null) Text(tag),
-          Expanded(child: widget.builder(index, 1, context)),
+          Expanded(
+              child: widget.builder(
+                  state.currentIndex + relativeIndex, 1, context)),
         ],
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 typedef ProgressBuilder = Widget Function(int, double, BuildContext);
-typedef SwipeCompletion = void Function(int);
+typedef SwipeCompletion = void Function(int, SwipeDirection);
 
 enum SwipeDirection { left, right }
 
@@ -15,6 +15,14 @@ extension SwipeDirectionValue on SwipeDirection {
       default:
         return 0;
     }
+  }
+
+  SwipeDirection get opposite {
+    if (this == SwipeDirection.left) {
+      return SwipeDirection.right;
+    }
+
+    return SwipeDirection.left;
   }
 
   bool get isLeft => this == SwipeDirection.left;
