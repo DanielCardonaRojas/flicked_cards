@@ -7,14 +7,17 @@ import 'animation_state.dart';
 
 part './animations/deck_animation.dart';
 part './animations/carousel_animation.dart';
+part './animations/circular_animation.dart';
+part './animations/flip_animation.dart';
 
 typedef SwipeAnimation = Matrix4 Function(double progress);
+typedef OpacityAnimation = double Function(double progress);
 
 abstract class CardAnimation {
   late AnimationState state;
 
-  int get cardsAfter => 1;
-  int get cardsBefore => 1;
+  int get cardsAfterNext => 0;
+  int get cardsBeforePrevious => 0;
 
   /// Animations can opt in to support 2 types of animations the either incrementally pile or removes from a pile
   /// When false cards are layed out inside a Stack widget like this: [Previous, Current, Next]
@@ -25,13 +28,13 @@ abstract class CardAnimation {
   /// Is this animatable to bring back swiped cards ?
   bool canReverse = true;
 
-  SwipeAnimation animationForCard({
-    required int relativeIndex,
-  });
+  SwipeAnimation animationForCard({required int relativeIndex});
 
-  FractionalOffset fractionalOffsetForCard({
-    required int relativeIndex,
-  });
+  OpacityAnimation opacityForCard({required int relativeIndex}) {
+    return (_) => 1;
+  }
+
+  FractionalOffset fractionalOffsetForCard({required int relativeIndex});
 
   static CardAnimation stacked() => DeckAnimation();
   static CardAnimation carousel() => CarouselAnimation();

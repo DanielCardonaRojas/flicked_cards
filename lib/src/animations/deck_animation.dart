@@ -1,7 +1,12 @@
 part of '../card_animation.dart';
 
 class DeckAnimation extends AsymmetricCardAnimation {
+  final double separationToNextCard = -35;
+
   DeckAnimation();
+
+  @override
+  int get cardsAfterNext => 0;
 
   @override
   SwipeAnimation get dismissAnimation {
@@ -14,18 +19,18 @@ class DeckAnimation extends AsymmetricCardAnimation {
   SwipeAnimation revealAnimation({required int relativeIndex}) {
     return (progress) {
       final dirValue = state.config.dismissDirection.opposite.value;
+      final compressionDiff = 0.06;
       double p = progress * dirValue;
       p = canReverse ? p : -p.abs();
       p = usesInvertedLayout ? -p : p;
-      final offset = -50;
       final idx = relativeIndex.toDouble().abs();
-      final compression = 1 - (p * 0.05 + idx * 0.05);
+      final compression = 1 - (p * compressionDiff + idx * compressionDiff);
 
       if (progress == dirValue) {
-        return Matrix4.identity()..translate(0.0, offset * idx);
+        return Matrix4.identity()..translate(0.0, separationToNextCard * idx);
       }
 
-      final y = p * offset + idx * offset;
+      final y = p * separationToNextCard + idx * separationToNextCard;
       return Matrix4.identity()
         ..translate(0.0, y)
         ..scale(compression, compression);

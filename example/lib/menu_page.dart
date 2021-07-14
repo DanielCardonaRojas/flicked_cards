@@ -16,9 +16,19 @@ class MenuPage extends StatelessWidget {
               children: [
                 _buildExample(
                     context: context,
-                    title: 'stacked deck + reversible + swipe right',
+                    title: 'deck + reversible + swipe right',
                     dismissDirection: SwipeDirection.right,
-                    animation: CardAnimation.stacked()),
+                    animation: DeckAnimation()),
+                _buildExample(
+                    context: context,
+                    title: 'roll + non reversible',
+                    reversible: false,
+                    animation: RollAnimation()),
+                _buildExample(
+                    context: context,
+                    title: 'flip + non reversible',
+                    reversible: false,
+                    animation: FlipAnimation()),
                 _buildExample(
                     context: context,
                     title: 'unstacked deck + reversible + swipe left',

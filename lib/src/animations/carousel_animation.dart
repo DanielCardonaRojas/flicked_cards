@@ -4,7 +4,7 @@ class CarouselAnimation extends SymmetricCardAnimation {
   final double cardSpacing;
 
   CarouselAnimation({
-    this.cardSpacing = 300,
+    this.cardSpacing = 500,
   });
 
   @override

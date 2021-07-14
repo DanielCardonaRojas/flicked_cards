@@ -37,7 +37,7 @@ class FlickerdCardsExample extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 400, 10, 0),
-            child: CardDeck(
+            child: FlickeredCards(
               count: 6,
               debug: true,
               dismissDirection: dismissDirection,

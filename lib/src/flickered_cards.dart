@@ -4,38 +4,37 @@ import 'package:flutter/material.dart';
 import 'animation_state.dart';
 import 'card_animation.dart';
 
-class CardDeck extends StatefulWidget {
+class FlickeredCards extends StatefulWidget {
   final ProgressBuilder builder;
   final SwipeCompletion? onSwiped;
   final CardAnimation animationStyle;
-  final double? backBackMinOpacity;
   final SwipeDirection dismissDirection;
   final bool debug;
   final int count;
 
-  CardDeck({
+  FlickeredCards({
     Key? key,
     required this.builder,
     CardAnimation? animationStyle,
     required this.count,
     this.onSwiped,
-    this.backBackMinOpacity,
     this.dismissDirection = SwipeDirection.left,
     this.debug = false,
   }) : this.animationStyle = animationStyle ?? DeckAnimation();
 
   @override
-  _CardDeckState createState() => _CardDeckState();
+  _FlickeredCardsState createState() => _FlickeredCardsState();
 }
 
-class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
+class _FlickeredCardsState extends State<FlickeredCards>
+    with TickerProviderStateMixin {
   late AnimationState _animationState;
   bool _isDragging = false;
   bool _isAnimating = false;
 
   bool get isIddle => !(_isDragging || _isAnimating);
 
-  // List<Widget> _cached = [];
+  Map<int, Widget> _cached = {};
   AnimationController? _finishingAnimationController;
   Animation<double>? _finishingAnimation;
 
@@ -63,10 +62,12 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     });
   }
 
-  void _completeAnimations() {
+  void _completeAnimations(double velocity) {
     // _animationState.log();
+    final duration = _endAnimationDuration -
+        (_endAnimationDuration * velocity.abs().clamp(0, 1));
     _finishingAnimationController =
-        AnimationController(vsync: this, duration: _endAnimationDuration);
+        AnimationController(vsync: this, duration: duration);
 
     _finishingAnimation = Tween<double>(
             begin: _animationState.progress.value,
@@ -127,8 +128,11 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
       },
       onHorizontalDragCancel: () {},
       onHorizontalDragEnd: (details) {
+        final velocityX = details.primaryVelocity;
+        final normalizedVelocity = 0.1 * (velocityX ?? 0) / size.width;
+        print('Velocity $normalizedVelocity');
         _isDragging = false;
-        _completeAnimations();
+        _completeAnimations(normalizedVelocity);
       },
       child: Stack(
         clipBehavior: Clip.hardEdge,
@@ -152,7 +156,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return Stack(
       children: [
         // Previous Card
-        if (_animationState.currentIndex >= 1)
+        if (_animationState.currentIndex > 0)
           _buildPreviousCard(_animationState, context),
         if (_animationState.currentIndex < widget.count)
           // Current Card
@@ -167,6 +171,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
   Stack _cardQueue(BuildContext context) {
     return Stack(
       children: [
+        ..._buildCardsAfterNext(context),
         if (_animationState.currentIndex + 1 < widget.count)
           // Next card
           _buildNextCard(_animationState, context),
@@ -176,8 +181,73 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
             _animationState.currentIndex > 0)
           // Previous Card
           _buildPreviousCard(_animationState, context),
+        ..._buildCardsBeforePrevious(context),
       ],
     );
+  }
+
+  List<Widget> _buildCardsBeforePrevious(BuildContext context) {
+    final count = widget.animationStyle.cardsBeforePrevious;
+
+    final extraBefore = List.generate(count, (index) {
+      final relativeIndex = -(index + 1);
+      final cardIndex = _animationState.currentIndex + relativeIndex;
+      if (cardIndex < 0 || cardIndex >= widget.count) return null;
+
+      final cardBeforePrevious =
+          _cached[cardIndex] ?? widget.builder(cardIndex, 1, context);
+
+      final offset = widget.animationStyle
+          .fractionalOffsetForCard(relativeIndex: relativeIndex);
+
+      final transformation =
+          widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
+
+      return Transform(
+        alignment: offset,
+        transform: transformation(_animationState.progress.value),
+        child: Column(
+          children: [
+            Text('Extra'),
+            Expanded(child: cardBeforePrevious),
+          ],
+        ),
+      );
+    }).whereType<Widget>().toList();
+
+    return extraBefore;
+  }
+
+  List<Widget> _buildCardsAfterNext(BuildContext context) {
+    final count = widget.animationStyle.cardsAfterNext;
+
+    final extraAfter = List.generate(count, (index) {
+      final relativeIndex = count - index + 1;
+      final cardIndex = _animationState.currentIndex + relativeIndex;
+      if (cardIndex < 0 || cardIndex >= widget.count) return null;
+
+      final cardAfterNext =
+          _cached[cardIndex] ?? widget.builder(cardIndex, 1, context);
+
+      final offset = widget.animationStyle
+          .fractionalOffsetForCard(relativeIndex: relativeIndex);
+
+      final transformation =
+          widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
+
+      return Transform(
+        alignment: offset,
+        transform: transformation(_animationState.progress.value),
+        child: Column(
+          children: [
+            Text('Extra'),
+            Expanded(child: cardAfterNext),
+          ],
+        ),
+      );
+    }).whereType<Widget>().toList();
+
+    return extraAfter;
   }
 
   Transform _buildPreviousCard(AnimationState config, BuildContext context) {
@@ -209,10 +279,17 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
       required BuildContext context,
       required int relativeIndex,
       required String? tag}) {
-    final offset = widget.animationStyle
-        .fractionalOffsetForCard(relativeIndex: relativeIndex);
-    final transformation =
-        widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
+    final spec = widget.animationStyle;
+    final offset = spec.fractionalOffsetForCard(relativeIndex: relativeIndex);
+    final transformation = spec.animationForCard(relativeIndex: relativeIndex);
+    final opacity = spec.opacityForCard(relativeIndex: relativeIndex);
+
+    final index = state.currentIndex + relativeIndex;
+    final card = widget.builder(index, 1, context);
+
+    if (relativeIndex == 0) {
+      _cached[index] = card;
+    }
 
     return Transform(
       alignment: offset,
@@ -221,8 +298,49 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
         children: [
           if (tag != null) Text(tag),
           Expanded(
-              child: widget.builder(
-                  state.currentIndex + relativeIndex, 1, context)),
+            child: Opacity(
+              opacity: opacity(state.progress.value),
+              child: card,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatableCard extends StatelessWidget {
+  final AnimationState state;
+  final int relativeIndex;
+  final Matrix4 animation;
+  final FractionalOffset offset;
+  final String? tag;
+  final Widget child;
+
+  const _AnimatableCard({
+    Key? key,
+    required this.state,
+    required this.relativeIndex,
+    required this.animation,
+    required this.offset,
+    required this.child,
+    this.tag,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform(
+      alignment: offset,
+      transform: animation,
+      child: Column(
+        children: [
+          if (tag != null) Text(tag!),
+          Expanded(
+            child: Opacity(
+              opacity: 1,
+              child: child,
+            ),
+          ),
         ],
       ),
     );
