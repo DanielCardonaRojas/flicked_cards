@@ -3,7 +3,13 @@ import 'dart:math';
 import 'package:flickered_cards/flickered_cards.dart';
 import 'package:flutter/material.dart';
 
-class AnimationExample3Page extends StatelessWidget {
+class FlickerdCardsExample extends StatelessWidget {
+  final CardAnimation cardAnimation;
+  final SwipeDirection dismissDirection;
+  final bool usesInvertedLayout;
+  final String title;
+  final bool reversible;
+
   static const colors = <Color>[
     Colors.red,
     Colors.blue,
@@ -12,11 +18,20 @@ class AnimationExample3Page extends StatelessWidget {
     Colors.orange,
   ];
 
+  const FlickerdCardsExample({
+    Key? key,
+    required this.cardAnimation,
+    this.dismissDirection = SwipeDirection.right,
+    this.usesInvertedLayout = false,
+    required this.title,
+    required this.reversible,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Example 3'),
+        title: Text(title),
       ),
       body: Container(
         child: Center(
@@ -25,9 +40,10 @@ class AnimationExample3Page extends StatelessWidget {
             child: CardDeck(
               count: 6,
               debug: true,
-              dismissDirection: SwipeDirection.right,
-              animationStyle: CardAnimation.stacked()
-                ..usesInvertedLayout = true,
+              dismissDirection: dismissDirection,
+              animationStyle: cardAnimation
+                ..usesInvertedLayout = usesInvertedLayout
+                ..canReverse = reversible,
               onSwiped: (idx, dir) => print('>>> $dir $idx'),
               builder: (index, progress, context) {
                 return Center(

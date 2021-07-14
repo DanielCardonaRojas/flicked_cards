@@ -1,9 +1,9 @@
 part of '../card_animation.dart';
 
-class CardDeckCarouselAnimation extends SymmetricCardAnimation {
+class CarouselAnimation extends SymmetricCardAnimation {
   final double cardSpacing;
 
-  CardDeckCarouselAnimation({
+  CarouselAnimation({
     this.cardSpacing = 300,
   });
 

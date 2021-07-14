@@ -5,7 +5,7 @@ import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 import 'animation_state.dart';
 
-part './animations/stacked_animation.dart';
+part './animations/deck_animation.dart';
 part './animations/carousel_animation.dart';
 
 typedef SwipeAnimation = Matrix4 Function(double progress);
@@ -33,8 +33,8 @@ abstract class CardAnimation {
     required int relativeIndex,
   });
 
-  static CardAnimation stacked() => CardStackAnimation();
-  static CardAnimation carousel() => CardDeckCarouselAnimation();
+  static CardAnimation stacked() => DeckAnimation();
+  static CardAnimation carousel() => CarouselAnimation();
 }
 
 /// Animation in which the dismissed and the next card have

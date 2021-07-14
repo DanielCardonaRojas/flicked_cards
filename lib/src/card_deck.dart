@@ -22,7 +22,7 @@ class CardDeck extends StatefulWidget {
     this.backBackMinOpacity,
     this.dismissDirection = SwipeDirection.left,
     this.debug = false,
-  }) : this.animationStyle = animationStyle ?? CardStackAnimation();
+  }) : this.animationStyle = animationStyle ?? DeckAnimation();
 
   @override
   _CardDeckState createState() => _CardDeckState();
