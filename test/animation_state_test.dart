@@ -125,4 +125,13 @@ void main() {
     assert(sut.hashCode != newInstance.hashCode);
   });
   test('advances when targetDirection is the same as dismissDirection', () {});
+
+  test('target direction is which ever way swiped when threshold exceeded', () {
+    final dir = SwipeDirection.left;
+    sut.configureWith(dismissDirection: dir.opposite, isReversible: false);
+    sut.update(delta: sut.config.screenWidth * dir.value * 0.3);
+    final target = sut.targetDirection;
+
+    assert(target == dir.value);
+  });
 }

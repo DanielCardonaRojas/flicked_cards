@@ -62,8 +62,9 @@ class AnimationState {
   }
 
   double get targetDirection {
-    final double target = _progress.value.isNegative ? -1 : 1;
-    final advances = target * config.dismissDirection.value == 1;
+    double target = _progress.value.isNegative ? -1 : 1;
+    final advances =
+        target * config.dismissDirection.value == 1 || !config.reversible;
     final targetIndex = currentIndex + target * config.dismissDirection.value;
 
     if (_progress.value.abs() < progressThreshold) return 0.0;

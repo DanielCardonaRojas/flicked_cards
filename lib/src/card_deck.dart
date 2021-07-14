@@ -152,7 +152,7 @@ class _CardDeckState extends State<CardDeck> with TickerProviderStateMixin {
     return Stack(
       children: [
         // Previous Card
-        if (_animationState.currentIndex > 1)
+        if (_animationState.currentIndex >= 1)
           _buildPreviousCard(_animationState, context),
         if (_animationState.currentIndex < widget.count)
           // Current Card

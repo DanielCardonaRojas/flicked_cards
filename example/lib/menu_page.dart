@@ -21,7 +21,14 @@ class MenuPage extends StatelessWidget {
                     animation: CardAnimation.stacked()),
                 _buildExample(
                     context: context,
-                    title: 'unstacked deck + not reversible',
+                    title: 'unstacked deck + reversible + swipe left',
+                    dismissDirection: SwipeDirection.left,
+                    inverted: true,
+                    reversible: true,
+                    animation: CardAnimation.stacked()),
+                _buildExample(
+                    context: context,
+                    title: 'stacked deck + not reversible',
                     reversible: false,
                     animation: CardAnimation.stacked()),
                 _buildExample(
@@ -44,6 +51,7 @@ class MenuPage extends StatelessWidget {
     required String title,
     required CardAnimation animation,
     bool reversible = true,
+    bool inverted = false,
     SwipeDirection dismissDirection = SwipeDirection.left,
   }) {
     return TextButton(
@@ -54,6 +62,7 @@ class MenuPage extends StatelessWidget {
                       reversible: reversible,
                       cardAnimation: animation,
                       dismissDirection: dismissDirection,
+                      usesInvertedLayout: inverted,
                       title: title,
                     ))),
         child: Text(title));

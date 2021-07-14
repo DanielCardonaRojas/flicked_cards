@@ -16,6 +16,7 @@ class DeckAnimation extends AsymmetricCardAnimation {
       final dirValue = state.config.dismissDirection.opposite.value;
       double p = progress * dirValue;
       p = canReverse ? p : -p.abs();
+      p = usesInvertedLayout ? -p : p;
       final offset = -50;
       final idx = relativeIndex.toDouble().abs();
       final compression = 1 - (p * 0.05 + idx * 0.05);
