@@ -1,7 +1,10 @@
 import 'package:flickered_cards/flickered_cards.dart';
+import 'package:flickered_cards/src/animation_config.dart';
 import 'package:flutter/material.dart';
 
 class TestStackAnimation extends AsymmetricCardAnimation {
+  AnimationConfig config = AnimationConfig();
+  LayoutConfig layoutConfig = LayoutConfig();
   TestStackAnimation();
 
   @override
@@ -18,7 +21,7 @@ class TestStackAnimation extends AsymmetricCardAnimation {
     return (progress) {
       final offset = -50;
 
-      if (progress == state.config.dismissDirection.value) {
+      if (progress == config.dismissDirection.value) {
         return Matrix4.identity()
           ..translate(0.0, offset * relativeIndex.toDouble());
       }

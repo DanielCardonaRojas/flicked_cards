@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 
 class FlickerdCardsExample extends StatelessWidget {
   final CardAnimation cardAnimation;
-  final SwipeDirection dismissDirection;
-  final bool usesInvertedLayout;
   final String title;
-  final bool reversible;
 
   static const colors = <Color>[
     Colors.red,
@@ -21,10 +18,7 @@ class FlickerdCardsExample extends StatelessWidget {
   const FlickerdCardsExample({
     Key? key,
     required this.cardAnimation,
-    this.dismissDirection = SwipeDirection.right,
-    this.usesInvertedLayout = false,
     required this.title,
-    required this.reversible,
   }) : super(key: key);
 
   @override
@@ -40,10 +34,7 @@ class FlickerdCardsExample extends StatelessWidget {
             child: FlickeredCards(
               count: 6,
               debug: true,
-              dismissDirection: dismissDirection,
-              animationStyle: cardAnimation
-                ..usesInvertedLayout = usesInvertedLayout
-                ..canReverse = reversible,
+              animationStyle: cardAnimation,
               onSwiped: (idx, dir) => print('>>> $dir $idx'),
               builder: (index, progress, context) {
                 return Center(

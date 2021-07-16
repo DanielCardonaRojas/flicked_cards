@@ -14,4 +14,12 @@ class RollAnimation extends AsymmetricCardAnimation {
   SwipeAnimation revealAnimation({required int relativeIndex}) {
     return (_) => Matrix4.identity();
   }
+
+  @override
+  AnimationConfig get config => AnimationConfig(
+        reversible: false,
+      );
+
+  @override
+  LayoutConfig get layoutConfig => LayoutConfig(cardsBefore: 0, cardsAfter: 1);
 }

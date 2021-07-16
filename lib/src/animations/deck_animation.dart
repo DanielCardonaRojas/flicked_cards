@@ -1,12 +1,14 @@
 part of '../card_animation.dart';
 
 class DeckAnimation extends AsymmetricCardAnimation {
+  final bool reversible;
+  final SwipeDirection dismissDirection;
   final double separationToNextCard = -35;
 
-  DeckAnimation();
-
-  @override
-  int get cardsAfterNext => 0;
+  DeckAnimation({
+    required this.reversible,
+    required this.dismissDirection,
+  });
 
   @override
   SwipeAnimation get dismissAnimation {
@@ -18,11 +20,11 @@ class DeckAnimation extends AsymmetricCardAnimation {
   @override
   SwipeAnimation revealAnimation({required int relativeIndex}) {
     return (progress) {
-      final dirValue = state.config.dismissDirection.opposite.value;
+      final dirValue = config.dismissDirection.opposite.value;
       final compressionDiff = 0.06;
       double p = progress * dirValue;
-      p = canReverse ? p : -p.abs();
-      p = usesInvertedLayout ? -p : p;
+      p = config.reversible ? p : -p.abs();
+      p = layoutConfig.usesInvertedLayout ? -p : p;
       final idx = relativeIndex.toDouble().abs();
       final compression = 1 - (p * compressionDiff + idx * compressionDiff);
 
@@ -36,4 +38,12 @@ class DeckAnimation extends AsymmetricCardAnimation {
         ..scale(compression, compression);
     };
   }
+
+  @override
+  AnimationConfig get config => AnimationConfig(
+      reversible: reversible, dismissDirection: dismissDirection);
+
+  @override
+  LayoutConfig get layoutConfig =>
+      LayoutConfig(cardsBefore: reversible ? 1 : 0, cardsAfter: 2);
 }

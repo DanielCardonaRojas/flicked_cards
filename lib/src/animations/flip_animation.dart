@@ -1,9 +1,7 @@
 part of '../card_animation.dart';
 
 class FlipAnimation extends CardAnimation {
-  FlipAnimation() {
-    super.canReverse = false;
-  }
+  FlipAnimation();
 
   @override
   SwipeAnimation animationForCard({required int relativeIndex}) {
@@ -29,4 +27,10 @@ class FlipAnimation extends CardAnimation {
   @override
   FractionalOffset fractionalOffsetForCard({required int relativeIndex}) =>
       FractionalOffset.center;
+
+  @override
+  AnimationConfig get config => AnimationConfig(reversible: false);
+
+  @override
+  LayoutConfig get layoutConfig => LayoutConfig(cardsBefore: 0, cardsAfter: 1);
 }

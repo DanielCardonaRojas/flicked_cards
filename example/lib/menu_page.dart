@@ -15,41 +15,41 @@ class MenuPage extends StatelessWidget {
             child: Column(
               children: [
                 _buildExample(
-                    context: context,
-                    title: 'deck + reversible + swipe right',
-                    dismissDirection: SwipeDirection.right,
-                    animation: DeckAnimation()),
+                  context: context,
+                  title: 'deck + reversible + swipe right',
+                  animation: DeckAnimation(
+                      dismissDirection: SwipeDirection.right, reversible: true),
+                ),
                 _buildExample(
                     context: context,
                     title: 'roll + non reversible',
-                    reversible: false,
                     animation: RollAnimation()),
                 _buildExample(
                     context: context,
                     title: 'flip + non reversible',
-                    reversible: false,
                     animation: FlipAnimation()),
                 _buildExample(
                     context: context,
                     title: 'unstacked deck + reversible + swipe left',
-                    dismissDirection: SwipeDirection.left,
-                    inverted: true,
-                    reversible: true,
-                    animation: CardAnimation.stacked()),
+                    animation: DeckAnimation(
+                        reversible: true,
+                        dismissDirection: SwipeDirection.left)),
                 _buildExample(
-                    context: context,
-                    title: 'stacked deck + not reversible',
-                    reversible: false,
-                    animation: CardAnimation.stacked()),
+                  context: context,
+                  title: 'stacked deck + not reversible',
+                  animation: DeckAnimation(
+                      reversible: false, dismissDirection: SwipeDirection.left),
+                ),
                 _buildExample(
                     context: context,
                     title: 'carousel + swipe left',
-                    animation: CardAnimation.carousel()),
+                    animation: CarouselAnimation(
+                        dismissDirection: SwipeDirection.left)),
                 _buildExample(
                     context: context,
-                    dismissDirection: SwipeDirection.right,
                     title: 'carousel + swipe right',
-                    animation: CardAnimation.carousel()),
+                    animation: CarouselAnimation(
+                        dismissDirection: SwipeDirection.right)),
               ],
             ),
           )),
@@ -60,19 +60,13 @@ class MenuPage extends StatelessWidget {
     required BuildContext context,
     required String title,
     required CardAnimation animation,
-    bool reversible = true,
-    bool inverted = false,
-    SwipeDirection dismissDirection = SwipeDirection.left,
   }) {
     return TextButton(
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => FlickerdCardsExample(
-                      reversible: reversible,
                       cardAnimation: animation,
-                      dismissDirection: dismissDirection,
-                      usesInvertedLayout: inverted,
                       title: title,
                     ))),
         child: Text(title));

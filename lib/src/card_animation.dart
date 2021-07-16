@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flickered_cards/flickered_cards.dart';
 import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
-import 'animation_state.dart';
+import 'animation_config.dart';
 
 part './animations/deck_animation.dart';
 part './animations/carousel_animation.dart';
@@ -14,19 +14,8 @@ typedef SwipeAnimation = Matrix4 Function(double progress);
 typedef OpacityAnimation = double Function(double progress);
 
 abstract class CardAnimation {
-  late AnimationState state;
-
-  int get cardsAfterNext => 0;
-  int get cardsBeforePrevious => 0;
-
-  /// Animations can opt in to support 2 types of animations the either incrementally pile or removes from a pile
-  /// When false cards are layed out inside a Stack widget like this: [Previous, Current, Next]
-  /// otherwise will be stack in the following manner: [Next, Current, Previous]
-  /// Also note that for the index 0 Previous will not be shown.
-  bool usesInvertedLayout = false;
-
-  /// Is this animatable to bring back swiped cards ?
-  bool canReverse = true;
+  AnimationConfig get config;
+  LayoutConfig get layoutConfig;
 
   SwipeAnimation animationForCard({required int relativeIndex});
 
@@ -35,9 +24,6 @@ abstract class CardAnimation {
   }
 
   FractionalOffset fractionalOffsetForCard({required int relativeIndex});
-
-  static CardAnimation stacked() => DeckAnimation();
-  static CardAnimation carousel() => CarouselAnimation();
 }
 
 /// Animation in which the dismissed and the next card have
@@ -52,7 +38,7 @@ abstract class AsymmetricCardAnimation extends CardAnimation {
 
   @override
   SwipeAnimation animationForCard({required int relativeIndex}) {
-    return usesInvertedLayout
+    return layoutConfig.usesInvertedLayout
         ? _stackingAnimationForCard(relativeIndex: relativeIndex)
         : _unstackingAnimationForCard(relativeIndex: relativeIndex);
   }
@@ -62,8 +48,8 @@ abstract class AsymmetricCardAnimation extends CardAnimation {
       if (relativeIndex > 0) {
         return revealAnimation(relativeIndex: relativeIndex).call(progress);
       } else if (relativeIndex < 0) {
-        return dismissAnimation(progress + state.config.dismissDirection.value);
-      } else if (relativeIndex == 0 && state.reversing) {
+        return dismissAnimation(progress + config.dismissDirection.value);
+      } else if (relativeIndex == 0 && isReversing(progress)) {
         return revealAnimation(relativeIndex: 0).call(progress);
       }
       return dismissAnimation(progress);
@@ -73,11 +59,10 @@ abstract class AsymmetricCardAnimation extends CardAnimation {
   SwipeAnimation _stackingAnimationForCard({required int relativeIndex}) {
     return (progress) {
       if (relativeIndex > 0) {
-        return dismissAnimation
-            .call(progress - state.config.dismissDirection.value);
+        return dismissAnimation.call(progress - config.dismissDirection.value);
       } else if (relativeIndex < 0) {
         return revealAnimation(relativeIndex: relativeIndex).call(progress);
-      } else if (relativeIndex == 0 && state.reversing) {
+      } else if (relativeIndex == 0 && isReversing(progress)) {
         return dismissAnimation.call(progress);
       }
       return revealAnimation(relativeIndex: relativeIndex).call(progress);
@@ -99,11 +84,24 @@ abstract class SymmetricCardAnimation extends CardAnimation {
     return (progress) {
       if (relativeIndex > 0) {
         return revealAnimation
-            .call(progress + state.config.dismissDirection.opposite.value);
+            .call(progress + config.dismissDirection.opposite.value);
       } else if (relativeIndex < 0) {
-        return revealAnimation(progress + state.config.dismissDirection.value);
+        return revealAnimation(progress + config.dismissDirection.value);
       }
       return revealAnimation(progress);
     };
+  }
+}
+
+extension CardAnimationX on CardAnimation {
+  SwipeDirection? movingDirection(double progress) {
+    if (progress < 0.0) return SwipeDirection.left;
+    if (progress > 0.0) return SwipeDirection.right;
+    return null;
+  }
+
+  bool isReversing(double progress) {
+    final dir = movingDirection(progress);
+    return dir != config.dismissDirection && config.reversible && dir != null;
   }
 }

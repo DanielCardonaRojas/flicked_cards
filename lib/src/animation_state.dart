@@ -1,27 +1,16 @@
+import 'animation_config.dart';
 import 'base_types.dart';
 part 'animation_progress.dart';
 
-class AnimationConfig {
-  static const defaultScreenWidth = 300.0;
-  final int cardCount;
-
-  SwipeDirection dismissDirection;
-  double screenWidth;
-  bool reversible;
-
-  AnimationConfig({
-    required this.cardCount,
-    required this.dismissDirection,
-    this.reversible = false,
-    this.screenWidth = defaultScreenWidth,
-  });
-}
-
 class AnimationState {
+  final int cardCount;
+  static const defaultScreenWidth = 300.0;
+
   static const progressThreshold = 0.25;
 
-  // Configuration
+  // Configuration properties
   late AnimationConfig config;
+  double screenWidth = defaultScreenWidth;
 
   // Mutable state
   AnimationProgress _progress = AnimationProgress();
@@ -30,13 +19,14 @@ class AnimationState {
   double positionX = 0;
 
   AnimationState({
+    required this.cardCount,
     AnimationConfig? config,
   }) {
     if (config != null) {
       this.config = config;
     }
 
-    positionX = AnimationConfig.defaultScreenWidth * 0.5;
+    positionX = defaultScreenWidth * 0.5;
   }
 
   // Computed
@@ -45,9 +35,6 @@ class AnimationState {
 
   double get invertedProgress =>
       config.dismissDirection.value - _progress.value.abs() * -1;
-  double get visibleCardProgress => reversing ? 0 : _progress.value;
-  double get reversedCardProgress =>
-      reversing ? invertedProgress : config.dismissDirection.value;
 
   SwipeDirection? get movingDirection {
     if (_progress.value < 0.0) return SwipeDirection.left;
@@ -68,7 +55,7 @@ class AnimationState {
     final targetIndex = currentIndex + target * config.dismissDirection.value;
 
     if (_progress.value.abs() < progressThreshold) return 0.0;
-    if (targetIndex > config.cardCount - 1) return 0.0;
+    if (targetIndex > cardCount - 1) return 0.0;
     if (!advances && currentIndex == 0) return 0.0;
     return target;
   }
@@ -77,11 +64,11 @@ class AnimationState {
     if (config.reversible) {
       return (currentIndex +
               targetDirection.sign * config.dismissDirection.value)
-          .clamp(0, config.cardCount - 1)
+          .clamp(0, cardCount - 1)
           .toInt();
     }
 
-    return (currentIndex + 1).clamp(0, config.cardCount).toInt();
+    return (currentIndex + 1).clamp(0, cardCount).toInt();
   }
 
   // Methods
@@ -89,10 +76,10 @@ class AnimationState {
     final advances =
         (delta * config.dismissDirection.value.sign) > 0 || !config.reversible;
     if (config.reversible && !advances && currentIndex == 0) return;
-    if (advances && currentIndex == config.cardCount - 1) return;
+    if (advances && currentIndex == cardCount - 1) return;
 
     positionX += delta;
-    final centeredX = positionX / config.screenWidth;
+    final centeredX = positionX / screenWidth;
     final newProgress = ((centeredX - 0.5) * 2).clamp(-1.0, 1.0);
     _progress.value = newProgress;
     // Convert to range -1, 1
@@ -104,7 +91,7 @@ class AnimationState {
 
   void reset() {
     _progress.value = 0;
-    positionX = config.screenWidth * .5;
+    positionX = screenWidth * .5;
   }
 
   void complete() {
@@ -117,24 +104,19 @@ class AnimationState {
 
   void configureWith({
     double? screenWidth,
-    bool? isReversible,
-    SwipeDirection? dismissDirection,
   }) {
-    if (screenWidth != null) this.config.screenWidth = screenWidth;
-    if (isReversible != null) this.config.reversible = isReversible;
-    if (dismissDirection != null)
-      this.config.dismissDirection = dismissDirection;
+    if (screenWidth != null) this.screenWidth = screenWidth;
   }
 
   AnimationState copyWith({
     double? signedProgress,
     NumericCompute? calculation,
   }) {
-    var state = AnimationState(config: config);
+    var state = AnimationState(config: config, cardCount: cardCount);
     state._progress.value = signedProgress ?? _progress.value;
     state.currentIndex = currentIndex;
     state.positionX = positionX;
-    state.config.screenWidth = config.screenWidth;
+    state.config = config;
     state._progress = _progress.copyWith(calculation: calculation);
     return state;
   }

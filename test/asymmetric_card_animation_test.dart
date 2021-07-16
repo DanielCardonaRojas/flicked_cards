@@ -1,4 +1,5 @@
 import 'package:flickered_cards/flickered_cards.dart';
+import 'package:flickered_cards/src/animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'test_stack_animation.dart';
@@ -8,18 +9,15 @@ void main() {
 
   setUp(() {
     sut = TestStackAnimation();
-    sut.state = AnimationState(
-      config: AnimationConfig(
-        cardCount: 10,
-        dismissDirection: SwipeDirection.right,
-      ),
+    sut.config = AnimationConfig(
+      dismissDirection: SwipeDirection.right,
     );
   });
 
   test(
       'Current card animation evaluates to the identity matrix when progress is 0',
       () {
-    sut.state.configureWith(dismissDirection: SwipeDirection.left);
+    sut.config = sut.config.copyWith(dismissDirection: SwipeDirection.left);
     final currentCardAnimation = sut.animationForCard(relativeIndex: 0);
     final result = currentCardAnimation(0);
     assert(result.isIdentity());
@@ -28,7 +26,7 @@ void main() {
   test(
       'Previous card animation at 0 is equal current card animation at dismissDirection',
       () {
-    sut.state.configureWith(dismissDirection: SwipeDirection.left);
+    sut.config = sut.config.copyWith(dismissDirection: SwipeDirection.left);
     final currentCardAnimation = sut.animationForCard(relativeIndex: 0);
     final previousCardAnimation = sut.animationForCard(relativeIndex: -1);
     final areEqual = previousCardAnimation(0) ==
@@ -40,7 +38,7 @@ void main() {
       'Next card animation evaluates to the currentCard at 0 when progress is completed and advancing',
       () {
     final dismissDir = SwipeDirection.right;
-    sut.state.configureWith(dismissDirection: dismissDir);
+    sut.config = sut.config.copyWith(dismissDirection: dismissDir);
     final nextCardAnimation =
         sut.animationForCard(relativeIndex: 1).call(dismissDir.value);
     final currentCardAnimation = sut.animationForCard(relativeIndex: 1).call(0);
@@ -51,8 +49,8 @@ void main() {
       'Previous card animation evaluates to the identity matrix when progress is completed and reversing',
       () {
     final dismissDir = SwipeDirection.left;
-    sut.state.configureWith(isReversible: true, dismissDirection: dismissDir);
-    sut.state.scrub(target: dismissDir.opposite.value * 0.3);
+    sut.config = sut.config.copyWith(dismissDirection: dismissDir);
+    // sut.state.scrub(target: dismissDir.opposite.value * 0.3);
 
     final previousCardAnimation = sut.animationForCard(relativeIndex: -1);
     final result = previousCardAnimation(SwipeDirection.right.value);
@@ -64,13 +62,8 @@ void main() {
       () {
     final dismissDir = SwipeDirection.left;
 
-    sut.state.configureWith(
-      isReversible: true,
-      dismissDirection: dismissDir,
-    );
-
-    // Update state to be reversing
-    sut.state.scrub(target: dismissDir.opposite.value * 0.3);
+    sut.config =
+        AnimationConfig(dismissDirection: dismissDir, reversible: true);
 
     final currentCardAnimation =
         sut.animationForCard(relativeIndex: 0).call(dismissDir.opposite.value);

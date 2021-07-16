@@ -1,6 +1,7 @@
 import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
+import 'animation_config.dart';
 import 'animation_state.dart';
 import 'card_animation.dart';
 
@@ -15,12 +16,12 @@ class FlickeredCards extends StatefulWidget {
   FlickeredCards({
     Key? key,
     required this.builder,
-    CardAnimation? animationStyle,
     required this.count,
+    required this.animationStyle,
     this.onSwiped,
     this.dismissDirection = SwipeDirection.left,
     this.debug = false,
-  }) : this.animationStyle = animationStyle ?? DeckAnimation();
+  });
 
   @override
   _FlickeredCardsState createState() => _FlickeredCardsState();
@@ -43,8 +44,8 @@ class _FlickeredCardsState extends State<FlickeredCards>
   @override
   void initState() {
     _animationState = AnimationState(
+      cardCount: widget.count,
       config: AnimationConfig(
-        cardCount: widget.count,
         dismissDirection: widget.dismissDirection,
       ),
     );
@@ -113,8 +114,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     _animationState.configureWith(screenWidth: size.width);
-    _animationState.config.reversible = widget.animationStyle.canReverse;
-    widget.animationStyle.state = _animationState;
+    _animationState.config = widget.animationStyle.config;
     // _animationState.log();
 
     return GestureDetector(
@@ -143,7 +143,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
             bottom: 0,
             right: 0,
             left: 0,
-            child: widget.animationStyle.usesInvertedLayout
+            child: widget.animationStyle.layoutConfig.usesInvertedLayout
                 ? _cardStack(context)
                 : _cardQueue(context),
           ),
@@ -187,7 +187,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
   }
 
   List<Widget> _buildCardsBeforePrevious(BuildContext context) {
-    final count = widget.animationStyle.cardsBeforePrevious;
+    final count = widget.animationStyle.layoutConfig.cardsBeforePrevious;
 
     final extraBefore = List.generate(count, (index) {
       final relativeIndex = -(index + 1);
@@ -219,7 +219,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
   }
 
   List<Widget> _buildCardsAfterNext(BuildContext context) {
-    final count = widget.animationStyle.cardsAfterNext;
+    final count = widget.animationStyle.layoutConfig.cardsAfterNext;
 
     final extraAfter = List.generate(count, (index) {
       final relativeIndex = count - index + 1;
@@ -250,7 +250,8 @@ class _FlickeredCardsState extends State<FlickeredCards>
     return extraAfter;
   }
 
-  Transform _buildPreviousCard(AnimationState config, BuildContext context) {
+  _AnimatableCard _buildPreviousCard(
+      AnimationState config, BuildContext context) {
     return _buildCard(
         state: config,
         context: context,
@@ -258,7 +259,8 @@ class _FlickeredCardsState extends State<FlickeredCards>
         tag: widget.debug ? 'Previous' : null);
   }
 
-  Transform _buildCurrentCard(AnimationState config, BuildContext context) {
+  _AnimatableCard _buildCurrentCard(
+      AnimationState config, BuildContext context) {
     return _buildCard(
         state: config,
         context: context,
@@ -266,7 +268,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
         tag: widget.debug ? 'Current' : null);
   }
 
-  Transform _buildNextCard(AnimationState config, BuildContext context) {
+  _AnimatableCard _buildNextCard(AnimationState config, BuildContext context) {
     return _buildCard(
         state: config,
         context: context,
@@ -274,7 +276,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
         tag: widget.debug ? 'Next' : null);
   }
 
-  Transform _buildCard(
+  _AnimatableCard _buildCard(
       {required AnimationState state,
       required BuildContext context,
       required int relativeIndex,
@@ -291,26 +293,16 @@ class _FlickeredCardsState extends State<FlickeredCards>
       _cached[index] = card;
     }
 
-    return Transform(
-      alignment: offset,
-      transform: transformation(state.progress.value),
-      child: Column(
-        children: [
-          if (tag != null) Text(tag),
-          Expanded(
-            child: Opacity(
-              opacity: opacity(state.progress.value),
-              child: card,
-            ),
-          ),
-        ],
-      ),
+    return _AnimatableCard(
+      relativeIndex: relativeIndex,
+      animation: transformation(state.progress.value),
+      offset: offset,
+      child: card,
     );
   }
 }
 
 class _AnimatableCard extends StatelessWidget {
-  final AnimationState state;
   final int relativeIndex;
   final Matrix4 animation;
   final FractionalOffset offset;
@@ -319,7 +311,6 @@ class _AnimatableCard extends StatelessWidget {
 
   const _AnimatableCard({
     Key? key,
-    required this.state,
     required this.relativeIndex,
     required this.animation,
     required this.offset,
@@ -329,19 +320,29 @@ class _AnimatableCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (tag != null) {
+      return Transform(
+        alignment: offset,
+        transform: animation,
+        child: Column(
+          children: [
+            if (tag != null) Text(tag!),
+            Expanded(
+              child: Opacity(
+                opacity: 1,
+                child: child,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Transform(
       alignment: offset,
       transform: animation,
-      child: Column(
-        children: [
-          if (tag != null) Text(tag!),
-          Expanded(
-            child: Opacity(
-              opacity: 1,
-              child: child,
-            ),
-          ),
-        ],
+      child: Opacity(
+        opacity: 1,
+        child: child,
       ),
     );
   }
