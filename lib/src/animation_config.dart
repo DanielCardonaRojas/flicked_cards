@@ -14,6 +14,27 @@ class LayoutConfig {
     this.cardsAfter = 1,
     this.cardsBefore = 1,
   });
+
+  List<int> relativeIndicesForLayout({required cardCount}) {
+    var result = <int>[];
+    for (var i = -cardsBefore; i <= cardsAfter; i++) {
+      if (i >= cardCount) continue;
+      result.add(i);
+    }
+
+    if (usesInvertedLayout) return result.reversed.toList();
+
+    return result;
+  }
+
+  List<int> indicesForLayout({required int currentIndex, required cardCount}) {
+    final relativeIndices = relativeIndicesForLayout(cardCount: cardCount);
+    final result = relativeIndices
+        .map((e) => e + currentIndex)
+        .where((element) => element >= 0 && element < cardCount)
+        .toList();
+    return result;
+  }
 }
 
 class AnimationConfig {

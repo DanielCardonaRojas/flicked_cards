@@ -1,7 +1,6 @@
 import 'package:flickered_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
-import 'animation_config.dart';
 import 'animation_state.dart';
 import 'card_animation.dart';
 
@@ -9,7 +8,6 @@ class FlickeredCards extends StatefulWidget {
   final ProgressBuilder builder;
   final SwipeCompletion? onSwiped;
   final CardAnimation animationStyle;
-  final SwipeDirection dismissDirection;
   final bool debug;
   final int count;
 
@@ -19,7 +17,6 @@ class FlickeredCards extends StatefulWidget {
     required this.count,
     required this.animationStyle,
     this.onSwiped,
-    this.dismissDirection = SwipeDirection.left,
     this.debug = false,
   });
 
@@ -45,10 +42,9 @@ class _FlickeredCardsState extends State<FlickeredCards>
   void initState() {
     _animationState = AnimationState(
       cardCount: widget.count,
-      config: AnimationConfig(
-        dismissDirection: widget.dismissDirection,
-      ),
+      config: widget.animationStyle.config,
     );
+
     super.initState();
   }
 
@@ -114,10 +110,10 @@ class _FlickeredCardsState extends State<FlickeredCards>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     _animationState.configureWith(screenWidth: size.width);
-    _animationState.config = widget.animationStyle.config;
     // _animationState.log();
 
     return GestureDetector(
+      key: Key('FlickedCardsGesture'),
       // behavior: HitTestBehavior.translucent,
       onHorizontalDragUpdate: (details) {
         _handleDrag(width: size.width, delta: details.delta.dx);
@@ -143,150 +139,47 @@ class _FlickeredCardsState extends State<FlickeredCards>
             bottom: 0,
             right: 0,
             left: 0,
-            child: widget.animationStyle.layoutConfig.usesInvertedLayout
-                ? _cardStack(context)
-                : _cardQueue(context),
+            child: _buildStack(context),
           ),
         ],
       ),
     );
   }
 
-  Stack _cardStack(BuildContext context) {
+  Stack _buildStack(BuildContext context) {
+    final indices = widget.animationStyle.layoutConfig
+        .relativeIndicesForLayout(cardCount: widget.count)
+        .reversed;
+    final cards = indices
+        .map((idx) => _buildCard(
+              state: _animationState,
+              context: context,
+              relativeIndex: idx,
+            ))
+        .whereType<_AnimatableCard>()
+        .map((e) => Positioned.fill(child: e))
+        .toList();
+
     return Stack(
-      children: [
-        // Previous Card
-        if (_animationState.currentIndex > 0)
-          _buildPreviousCard(_animationState, context),
-        if (_animationState.currentIndex < widget.count)
-          // Current Card
-          _buildCurrentCard(_animationState, context),
-        if (_animationState.currentIndex + 1 < widget.count)
-          // Next Card
-          _buildNextCard(_animationState, context),
-      ],
+      children: cards,
     );
   }
 
-  Stack _cardQueue(BuildContext context) {
-    return Stack(
-      children: [
-        ..._buildCardsAfterNext(context),
-        if (_animationState.currentIndex + 1 < widget.count)
-          // Next card
-          _buildNextCard(_animationState, context),
-        // Visible Card
-        _buildCurrentCard(_animationState, context),
-        if (_animationState.config.reversible &&
-            _animationState.currentIndex > 0)
-          // Previous Card
-          _buildPreviousCard(_animationState, context),
-        ..._buildCardsBeforePrevious(context),
-      ],
-    );
-  }
-
-  List<Widget> _buildCardsBeforePrevious(BuildContext context) {
-    final count = widget.animationStyle.layoutConfig.cardsBeforePrevious;
-
-    final extraBefore = List.generate(count, (index) {
-      final relativeIndex = -(index + 1);
-      final cardIndex = _animationState.currentIndex + relativeIndex;
-      if (cardIndex < 0 || cardIndex >= widget.count) return null;
-
-      final cardBeforePrevious =
-          _cached[cardIndex] ?? widget.builder(cardIndex, 1, context);
-
-      final offset = widget.animationStyle
-          .fractionalOffsetForCard(relativeIndex: relativeIndex);
-
-      final transformation =
-          widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
-
-      return Transform(
-        alignment: offset,
-        transform: transformation(_animationState.progress.value),
-        child: Column(
-          children: [
-            Text('Extra'),
-            Expanded(child: cardBeforePrevious),
-          ],
-        ),
-      );
-    }).whereType<Widget>().toList();
-
-    return extraBefore;
-  }
-
-  List<Widget> _buildCardsAfterNext(BuildContext context) {
-    final count = widget.animationStyle.layoutConfig.cardsAfterNext;
-
-    final extraAfter = List.generate(count, (index) {
-      final relativeIndex = count - index + 1;
-      final cardIndex = _animationState.currentIndex + relativeIndex;
-      if (cardIndex < 0 || cardIndex >= widget.count) return null;
-
-      final cardAfterNext =
-          _cached[cardIndex] ?? widget.builder(cardIndex, 1, context);
-
-      final offset = widget.animationStyle
-          .fractionalOffsetForCard(relativeIndex: relativeIndex);
-
-      final transformation =
-          widget.animationStyle.animationForCard(relativeIndex: relativeIndex);
-
-      return Transform(
-        alignment: offset,
-        transform: transformation(_animationState.progress.value),
-        child: Column(
-          children: [
-            Text('Extra'),
-            Expanded(child: cardAfterNext),
-          ],
-        ),
-      );
-    }).whereType<Widget>().toList();
-
-    return extraAfter;
-  }
-
-  _AnimatableCard _buildPreviousCard(
-      AnimationState config, BuildContext context) {
-    return _buildCard(
-        state: config,
-        context: context,
-        relativeIndex: -1,
-        tag: widget.debug ? 'Previous' : null);
-  }
-
-  _AnimatableCard _buildCurrentCard(
-      AnimationState config, BuildContext context) {
-    return _buildCard(
-        state: config,
-        context: context,
-        relativeIndex: 0,
-        tag: widget.debug ? 'Current' : null);
-  }
-
-  _AnimatableCard _buildNextCard(AnimationState config, BuildContext context) {
-    return _buildCard(
-        state: config,
-        context: context,
-        relativeIndex: 1,
-        tag: widget.debug ? 'Next' : null);
-  }
-
-  _AnimatableCard _buildCard(
-      {required AnimationState state,
-      required BuildContext context,
-      required int relativeIndex,
-      required String? tag}) {
+  _AnimatableCard? _buildCard({
+    required AnimationState state,
+    required BuildContext context,
+    required int relativeIndex,
+  }) {
     final spec = widget.animationStyle;
     final offset = spec.fractionalOffsetForCard(relativeIndex: relativeIndex);
     final transformation = spec.animationForCard(relativeIndex: relativeIndex);
     final opacity = spec.opacityForCard(relativeIndex: relativeIndex);
+    final tag = widget.debug ? '$relativeIndex' : null;
 
     final index = state.currentIndex + relativeIndex;
+
+    if (index < 0 || index >= widget.count) return null;
+
     final card = widget.builder(index, 1, context);
 
     if (relativeIndex == 0) {
@@ -294,27 +187,28 @@ class _FlickeredCardsState extends State<FlickeredCards>
     }
 
     return _AnimatableCard(
-      relativeIndex: relativeIndex,
       animation: transformation(state.progress.value),
       offset: offset,
+      tag: tag,
+      opacity: opacity(state.progress.value),
       child: card,
     );
   }
 }
 
 class _AnimatableCard extends StatelessWidget {
-  final int relativeIndex;
   final Matrix4 animation;
   final FractionalOffset offset;
   final String? tag;
+  final double opacity;
   final Widget child;
 
   const _AnimatableCard({
     Key? key,
-    required this.relativeIndex,
     required this.animation,
     required this.offset,
     required this.child,
+    required this.opacity,
     this.tag,
   }) : super(key: key);
 
@@ -325,11 +219,12 @@ class _AnimatableCard extends StatelessWidget {
         alignment: offset,
         transform: animation,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (tag != null) Text(tag!),
+            if (tag != null) Text(tag!, textAlign: TextAlign.center),
             Expanded(
               child: Opacity(
-                opacity: 1,
+                opacity: opacity,
                 child: child,
               ),
             ),
@@ -341,7 +236,7 @@ class _AnimatableCard extends StatelessWidget {
       alignment: offset,
       transform: animation,
       child: Opacity(
-        opacity: 1,
+        opacity: opacity,
         child: child,
       ),
     );
