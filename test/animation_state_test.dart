@@ -24,6 +24,18 @@ void main() {
     assert(sut.targetDirection.abs() == 1);
   });
 
+  test('reverisble is always false when configured for non reversing', () {
+    final config = AnimationConfig(
+        reversible: false, dismissDirection: SwipeDirection.left);
+
+    sut.configure(config: config);
+
+    sut.update(delta: 20);
+    assert(!sut.reversing);
+    sut.update(delta: -20);
+    assert(!sut.reversing);
+  });
+
   test('target direction is center when drag does not exceed threshold', () {
     final configuration = AnimationConfig(
         dismissDirection: SwipeDirection.right, reversible: true);

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:example/superheroes/superhero.dart';
+import 'package:example/superheroes/superhero_card.dart';
 import 'package:flickered_cards/flickered_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -32,12 +34,10 @@ class FlickerdCardsExample extends StatelessWidget {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Spacer(),
-              SizedBox(
-                height: 400,
+              Expanded(
                 child: FlickeredCards(
-                  count: 6,
-                  debug: true,
+                  count: Superhero.marvelHeroes.length,
+                  debug: false,
                   animationStyle: cardAnimation,
                   onSwiped: (idx, dir) => print('>>> $dir $idx'),
                   builder: (index, progress, context) {
@@ -51,19 +51,10 @@ class FlickerdCardsExample extends StatelessWidget {
   }
 
   Widget _buildCard(int index, double progress) {
+    final superHeroe = Superhero.marvelHeroes[index];
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: colors[index % colors.length],
-      ),
       child: Center(
-        child: Transform.rotate(
-          angle: 2 * pi * progress,
-          child: Text(
-            'Card # $index',
-            style: TextStyle(fontSize: 30, color: Colors.black),
-          ),
-        ),
+        child: SuperheroCard(superhero: superHeroe, factorChange: 1 - progress),
       ),
     );
   }

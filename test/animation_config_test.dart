@@ -1,3 +1,4 @@
+import 'package:flickered_cards/flickered_cards.dart';
 import 'package:flickered_cards/src/animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collection/collection.dart';
@@ -26,8 +27,8 @@ void main() {
   });
 
   test('returns reversed array when invertedLayout is enabled', () {
-    final sut = LayoutConfig(cardsAfter: 2, cardsBefore: 1);
-    sut.usesInvertedLayout = true;
+    final sut =
+        LayoutConfig(cardsAfter: 2, cardsBefore: 1, usesInvertedLayout: true);
     final result = sut.indicesForLayout(currentIndex: 1, cardCount: 10);
     assert(eq(result, [3, 2, 1, 0]));
   });

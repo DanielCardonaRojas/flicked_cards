@@ -33,6 +33,7 @@ class MenuPage extends StatelessWidget {
                     title: 'unstacked deck + reversible + swipe left',
                     animation: DeckAnimation(
                         reversible: true,
+                        usesInvertedLayout: true,
                         dismissDirection: SwipeDirection.left)),
                 _buildExample(
                   context: context,

@@ -20,7 +20,7 @@ void main() {
         builder: (idx, progress, context) {
           inspector?.call(idx, progress);
           final cardKey = Key('Card${idx}Key');
-          return SizedBox(key: cardKey, height: 600, width: 300);
+          return SizedBox(key: cardKey, height: 900, width: 300);
         },
         count: 10,
         animationStyle:
@@ -41,6 +41,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(cardZeroFinder, findsOneWidget);
   });
+
+/*
+  testWidgets('card 0 is hit testable', (WidgetTester tester) async {
+    final cardZeroFinder = find.byKey(Key('Card0Key'));
+    final widget = _createWidgetForTesting();
+
+    await tester.pumpMyWidget(widget);
+    await tester.pumpAndSettle();
+    final hitTestable = cardZeroFinder.hitTestable();
+    expect(hitTestable, findsOneWidget);
+  });
+  */
 
   testWidgets('Calls builder for card 0 on first build',
       (WidgetTester tester) async {
@@ -80,7 +92,6 @@ void main() {
     final widget = _createWidgetForTesting();
 
     await tester.pumpMyWidget(widget);
-    await tester.pumpAndSettle();
     expect(gestureWidgetFinder, findsOneWidget);
     final size = tester.getSize(gestureWidgetFinder);
     assert(size != Size.zero);
@@ -101,19 +112,28 @@ void main() {
 /*
   testWidgets('calls builder after full swipe', (WidgetTester tester) async {
     final cardBuilder = MockCallable<int>();
-    final finder = find.byType(FlickeredCards);
+    // final finder = find.byType(FlickeredCards);
+    final finder = find.byKey(Key('FlickedCardsGesture'));
+    // final finder = find.byKey(Key('Card0Key'));
 
     final widget = _createWidgetForTesting(inspector: (idx, progress) {
       cardBuilder.call(idx);
     });
 
     await tester.pumpMyWidget(widget);
+    await tester.pumpAndSettle();
     reset(cardBuilder);
     print(finder.first.description);
-    TestGesture gesture =
-        await tester.startGesture(Offset(20, 100), pointer: 7);
-    await gesture.moveTo(Offset(250, 100));
-    await gesture.up(timeStamp: const Duration(milliseconds: 250));
+    await tester.drag(finder, Offset(80, 100));
+    // TestGesture gesture = await tester.startGesture(Offset(20, 100));
+    // for (var i = 0; i < 5; i++) {
+    //   await gesture.moveBy(Offset(10, 0));
+    // }
+
+    // tester.pump();
+
+    // await gesture.up(timeStamp: const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
 
     verify(() => cardBuilder(any()));
   });
@@ -125,9 +145,13 @@ extension WidgetTesterX on WidgetTester {
     return pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Center(
-            child: widget,
-          ),
+          body: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: widget,
+                ),
+              ]),
         ),
       ),
       const Duration(milliseconds: 100),

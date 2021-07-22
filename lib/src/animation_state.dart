@@ -36,6 +36,27 @@ class AnimationState {
   double get invertedProgress =>
       config.dismissDirection.value - _progress.value.abs() * -1;
 
+  double cardProgress({required int relativeIndex}) {
+    final directedProgress = config.reversible
+        ? progress.value * config.dismissDirection.value
+        : progress.value;
+
+    double result = 0;
+
+    if (relativeIndex == 0) {
+      // Current card
+      result = 1 - directedProgress.abs();
+    } else if (relativeIndex > 0) {
+      // Next cards
+      result = relativeIndex == 1 && !reversing ? directedProgress.abs() : 0;
+    } else if (relativeIndex < 0) {
+      // Previous cards
+      result = 1;
+    }
+
+    return result;
+  }
+
   SwipeDirection? get movingDirection {
     if (_progress.value < 0.0) return SwipeDirection.left;
     if (_progress.value > 0.0) return SwipeDirection.right;

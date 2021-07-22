@@ -8,11 +8,12 @@ class LayoutConfig {
   /// When false cards are layed out inside a Stack widget like this: [Previous, Current, Next]
   /// otherwise will be stack in the following manner: [Next, Current, Previous]
   /// Also note that for the index 0 Previous will not be shown.
-  bool usesInvertedLayout = false;
+  bool usesInvertedLayout;
 
   LayoutConfig({
     this.cardsAfter = 1,
     this.cardsBefore = 1,
+    this.usesInvertedLayout = false,
   });
 
   List<int> relativeIndicesForLayout({required cardCount}) {

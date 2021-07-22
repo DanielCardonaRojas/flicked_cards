@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  cached_network_image: ^3.0.0
+  google_fonts: ^2.1.0
   cupertino_icons: ^1.0.2
   flickered_cards:
     path: ../
@@ -20,3 +22,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/img/
+    - assets/img/superheroes/

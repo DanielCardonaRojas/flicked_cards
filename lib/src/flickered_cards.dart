@@ -126,7 +126,6 @@ class _FlickeredCardsState extends State<FlickeredCards>
       onHorizontalDragEnd: (details) {
         final velocityX = details.primaryVelocity;
         final normalizedVelocity = 0.1 * (velocityX ?? 0) / size.width;
-        print('Velocity $normalizedVelocity');
         _isDragging = false;
         _completeAnimations(normalizedVelocity);
       },
@@ -180,7 +179,9 @@ class _FlickeredCardsState extends State<FlickeredCards>
 
     if (index < 0 || index >= widget.count) return null;
 
-    final card = widget.builder(index, 1, context);
+    var cardProgress = state.cardProgress(relativeIndex: relativeIndex);
+
+    final card = widget.builder(index, cardProgress, context);
 
     if (relativeIndex == 0) {
       _cached[index] = card;
