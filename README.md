@@ -23,12 +23,18 @@ A customizable card swipping widget.
 - Extensible through custom provided animations
 - Support piling or popping (depending on animation spec)
 
-## TODO
 
-- Add sensitivity parameter for wider screens.
-- Make animation decide how many cards the require.
-- Fix Deck Animation not constant card separation make last and before aligned
-- Better seperate animation config from state, so that there is no double deps
+## Examples
+
+Here are some of the animation provided out of the box, take a look at the example to see all.
+
+<div align="center">
+  <img src="roll_animation.gif">
+  <img src="flip_animation.gif">
+  <img src="carousel_animation.gif">
+  <img src="deck_reversible_animation.gif">
+</div>
+
 
 # Custom animations
 
@@ -45,6 +51,40 @@ You will have to reason about card indices:
 
 ![](card_indices.png)
 
+## Interface for animations
+
+All animations will need to implement `CardAnimation` which basically
+defines: 
+
+- animation of a particular card depending on swipe progress `required` 
+- opacity of a particular card depending on swipe progress `optional` 
+- where to apply transformations on cards (Fractional Offset) 
+
+```dart
+typedef SwipeAnimation = Matrix4 Function(double progress);
+typedef OpacityAnimation = double Function(double progress);
+
+abstract class CardAnimation {
+  AnimationConfig get config;
+  LayoutConfig get layoutConfig;
+
+  SwipeAnimation animationForCard({required int relativeIndex});
+
+  OpacityAnimation opacityForCard({required int relativeIndex}) {
+    return (_) => 1;
+  }
+
+  FractionalOffset fractionalOffsetForCard({required int relativeIndex});
+}
+```
+
+Additionally to make this process a bit easier, 2 extra abstract classes that implement 
+`CardAnimation` which are:
+
+- `SymmetricCardAnimation`
+- `AsymmetricCardAnimation`
+
+Carousel animation is an example of a `SymmetricCardAnimation` take a look [here](https://github.com/DanielCardonaRojas/flickered_cards/blob/main/lib/src/animations/carousel_animation.dart)
 
 ## Available layouts
 
@@ -58,3 +98,10 @@ Note that depending on the index some of cards will not be displayed:
 ![](cards_initial_layout.png)
 ![](cards_final_layout.png)
 
+
+## TODO
+
+- Add sensitivity parameter for wider screens.
+- Make animation decide how many cards the require.
+- Fix Deck Animation not constant card separation make last and before aligned
+- Better seperate animation config from state, so that there is no double deps

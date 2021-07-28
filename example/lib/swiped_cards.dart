@@ -41,20 +41,17 @@ class FlickerdCardsExample extends StatelessWidget {
                   animationStyle: cardAnimation,
                   onSwiped: (idx, dir) => print('>>> $dir $idx'),
                   builder: (index, progress, context) {
-                    return _buildCard(index, progress);
+                    final superHeroe = Superhero.marvelHeroes[index];
+                    return Container(
+                      child: Center(
+                        child: SuperheroCard(
+                            superhero: superHeroe, factorChange: 1 - progress),
+                      ),
+                    );
                   },
                 ),
               ),
             ]),
-      ),
-    );
-  }
-
-  Widget _buildCard(int index, double progress) {
-    final superHeroe = Superhero.marvelHeroes[index];
-    return Container(
-      child: Center(
-        child: SuperheroCard(superhero: superHeroe, factorChange: 1 - progress),
       ),
     );
   }
