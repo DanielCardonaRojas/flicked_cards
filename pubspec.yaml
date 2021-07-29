@@ -1,7 +1,7 @@
 name: flicked_cards
 description: A gesture driven customizable and extensible card widget
 version: 0.0.1
-homepage: danielcardona.dev
+homepage: https://danielcardona.dev
 
 environment:
   sdk: ">=2.12.0 <3.0.0"

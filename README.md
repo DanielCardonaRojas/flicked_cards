@@ -8,6 +8,10 @@
   <img alt="Codecov" src="https://codecov.io/gh/DanielCardonaRojas/flicked_cards/branch/main/graph/badge.svg?token=NBJEUBQLZR">
 </a>
 
+<a href="https://pub.dartlang.org/packages/flicked_cards">
+    <img alt="Pub Package" src="https://img.shields.io/pub/v/flicked_cards.svg">
+</a>
+
 
 <a href="https://opensource.org/licenses/MIT">
 <img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg">
@@ -30,10 +34,10 @@ A gesture driven card swipping widget supporting custom animations.
 Here are some of the animation provided out of the box, take a look at the example to see all.
 
 <div align="center">
-  <img src="roll_animation.gif">
-  <img src="flip_animation.gif">
-  <img src="carousel_animation.gif">
-  <img src="deck_reversible_animation.gif">
+  <img src="https://github.com/DanielCardonaRojas/flicked_cards/raw/main/roll_animation.gif">
+  <img src="https://github.com/DanielCardonaRojas/flicked_cards/raw/main/flip_animation.gif">
+  <img src="https://github.com/DanielCardonaRojas/flicked_cards/raw/main/carousel_animation.gif">
+  <img src="https://github.com/DanielCardonaRojas/flicked_cards/raw/main/deck_reversible_animation.gif">
 </div>
 
 Cards used in these examples where taken from [Brocodev](https://github.com/brocodev/flutter_projects) 
@@ -47,11 +51,11 @@ of how cards can be layed out and how to position them depending on the drag pro
 Animations will be provided a `progress` value in the range (-1, 1) you should try to make you animation symmetric around 0
 when posible. Like this:
 
-![](current_card_animation.png)
+![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/current_card_animation.png)
 
 You will have to reason about relative card indices:
 
-![](card_indices.png)
+![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/card_indices.png)
 
 ## Interface for animations
 
@@ -93,12 +97,12 @@ Carousel animation is an example of a `SymmetricCardAnimation` take a look [here
 Internally cards are placed in `Stack` widget so an animation can choose to work with a single or both of the following 
 layouts:
 
-![](card_layouts.png)
+![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/card_layouts.png)
 
 Note that depending on the index some of cards will not be displayed:
 
-![](cards_initial_layout.png)
-![](cards_final_layout.png)
+![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/cards_initial_layout.png)
+![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/cards_final_layout.png)
 
 
 ## TODO
