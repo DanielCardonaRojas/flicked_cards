@@ -11,12 +11,12 @@
         "program": "./test/"
     },
         {
-            "name": "flickered_cards",
+            "name": "flicked_cards",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "flickered_cards (profile mode)",
+            "name": "flicked_cards (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"

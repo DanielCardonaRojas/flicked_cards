@@ -1,5 +1,5 @@
-import 'package:flickered_cards/flickered_cards.dart';
-import 'package:flickered_cards/src/animation_config.dart';
+import 'package:flicked_cards/flicked_cards.dart';
+import 'package:flicked_cards/src/animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collection/collection.dart';
 

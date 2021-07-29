@@ -1,4 +1,4 @@
-import 'package:flickered_cards/src/animation_state.dart';
+import 'package:flicked_cards/src/animation_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

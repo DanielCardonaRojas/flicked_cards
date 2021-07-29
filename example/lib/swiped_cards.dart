@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:example/superheroes/superhero.dart';
 import 'package:example/superheroes/superhero_card.dart';
-import 'package:flickered_cards/flickered_cards.dart';
+import 'package:flicked_cards/flicked_cards.dart';
 import 'package:flutter/material.dart';
 
 class FlickerdCardsExample extends StatelessWidget {

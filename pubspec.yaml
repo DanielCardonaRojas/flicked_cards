@@ -1,5 +1,5 @@
-name: flickered_cards
-description: A customizable flickered cards widget
+name: flicked_cards
+description: A gesture driven customizable and extensible card widget
 version: 0.0.1
 homepage: danielcardona.dev
 

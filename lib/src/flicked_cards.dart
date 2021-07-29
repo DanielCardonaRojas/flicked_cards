@@ -1,4 +1,4 @@
-import 'package:flickered_cards/src/base_types.dart';
+import 'package:flicked_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 
 import 'animation_state.dart';

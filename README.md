@@ -1,12 +1,13 @@
-# flickered_cards
+# flicked_cards
 
 <p align="center">
-<a href="https://github.com/DanielCardonaRojas/flickered_cards/actions/workflows/test.yaml">
-<img alt="Build Status" src="https://github.com/DanielCardonaRojas/flickered_cards/actions/workflows/test.yaml/badge.svg">
+<a href="https://github.com/DanielCardonaRojas/flicked_cards/actions/workflows/test.yaml">
+<img alt="Build Status" src="https://github.com/DanielCardonaRojas/flicked_cards/actions/workflows/test.yaml/badge.svg">
 </a>
-<a href="https://codecov.io/gh/DanielCardonaRojas/flickered_cards">
-  <img alt="Codecov" src="https://codecov.io/gh/DanielCardonaRojas/flickered_cards/branch/main/graph/badge.svg?token=NBJEUBQLZR">
+<a href="https://codecov.io/gh/DanielCardonaRojas/flicked_cards">
+  <img alt="Codecov" src="https://codecov.io/gh/DanielCardonaRojas/flicked_cards/branch/main/graph/badge.svg?token=NBJEUBQLZR">
 </a>
+
 
 <a href="https://opensource.org/licenses/MIT">
 <img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg">
@@ -14,7 +15,7 @@
 
 </p>
 
-A customizable card swipping widget.
+A gesture driven card swipping widget supporting custom animations.
 
 ## Features
 
@@ -35,10 +36,11 @@ Here are some of the animation provided out of the box, take a look at the examp
   <img src="deck_reversible_animation.gif">
 </div>
 
+Cards used in these examples where taken from [Brocodev](https://github.com/brocodev/flutter_projects) 
 
 # Custom animations
 
-`flickered_cards` provides an easy way to create custom animations but it is required to have a basic understanding
+`flicked_cards` provides an easy way to create custom animations but it is required to have a basic understanding
 of how cards can be layed out and how to position them depending on the drag progress and some of the properties in `AnimationConfig`.
 
 
@@ -47,7 +49,7 @@ when posible. Like this:
 
 ![](current_card_animation.png)
 
-You will have to reason about card indices:
+You will have to reason about relative card indices:
 
 ![](card_indices.png)
 
@@ -84,7 +86,7 @@ Additionally to make this process a bit easier, 2 extra abstract classes that im
 - `SymmetricCardAnimation`
 - `AsymmetricCardAnimation`
 
-Carousel animation is an example of a `SymmetricCardAnimation` take a look [here](https://github.com/DanielCardonaRojas/flickered_cards/blob/main/lib/src/animations/carousel_animation.dart)
+Carousel animation is an example of a `SymmetricCardAnimation` take a look [here](https://github.com/DanielCardonaRojas/flicked_cards/blob/main/lib/src/animations/carousel_animation.dart)
 
 ## Available layouts
 
@@ -102,6 +104,4 @@ Note that depending on the index some of cards will not be displayed:
 ## TODO
 
 - Add sensitivity parameter for wider screens.
-- Make animation decide how many cards the require.
 - Fix Deck Animation not constant card separation make last and before aligned
-- Better seperate animation config from state, so that there is no double deps

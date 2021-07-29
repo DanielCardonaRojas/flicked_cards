@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flickered_cards/flickered_cards.dart';
-import 'package:flickered_cards/src/base_types.dart';
+import 'package:flicked_cards/flicked_cards.dart';
+import 'package:flicked_cards/src/base_types.dart';
 import 'package:flutter/material.dart';
 import 'animation_config.dart';
 
