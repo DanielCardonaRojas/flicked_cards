@@ -8,9 +8,7 @@ void main() {
 
   setUp(() {
     sut = AnimationState(cardCount: 10);
-    final configuration = AnimationConfig(
-      dismissDirection: SwipeDirection.left,
-    );
+    final configuration = AnimationConfig();
     sut.configure(config: configuration);
   });
   test('target direction is not center when drag threshold has been exceeded',
@@ -25,11 +23,6 @@ void main() {
   });
 
   test('reverisble is always false when configured for non reversing', () {
-    final config = AnimationConfig(
-        reversible: false, dismissDirection: SwipeDirection.left);
-
-    sut.configure(config: config);
-
     sut.update(delta: 20);
     assert(!sut.reversing);
     sut.update(delta: -20);
@@ -59,16 +52,8 @@ void main() {
   });
 
   test('moving direction is right for positive delta updates', () {
-    sut.configure(
-      config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
-        reversible: false,
-      ),
-    );
-
     sut.currentIndex = 1;
     sut.update(delta: 5);
-    final value = sut.progress.value;
     assert(sut.movingDirection == SwipeDirection.right);
   });
 
@@ -79,10 +64,9 @@ void main() {
   test(
       'increments index when swiped in the same direction as configured by dismissDirection',
       () {
-    final initialIndex = 1;
+    const initialIndex = 1;
     sut.configure(
       config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
         reversible: true,
       ),
     );
@@ -96,11 +80,10 @@ void main() {
   test(
       'does not increments index when swiped in opposite direction of configured dismissDirection',
       () {
-    final initialIndex = 1;
+    const initialIndex = 1;
 
     sut.configure(
       config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
         reversible: true,
       ),
     );
@@ -115,7 +98,6 @@ void main() {
   test('does not drag when reversing and on index 0', () {
     sut.configure(
       config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
         reversible: true,
       ),
     );
@@ -131,7 +113,6 @@ void main() {
   test('does not drag when advance and index has reached last card', () {
     sut.configure(
       config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
         reversible: true,
       ),
     );
@@ -149,7 +130,6 @@ void main() {
   test('returns new instance with copyWith', () {
     sut.configure(
       config: AnimationConfig(
-        dismissDirection: SwipeDirection.left,
         reversible: true,
       ),
     );
@@ -161,11 +141,10 @@ void main() {
   test('advances when targetDirection is the same as dismissDirection', () {});
 
   test('target direction is which ever way swiped when threshold exceeded', () {
-    final dir = SwipeDirection.left;
+    const dir = SwipeDirection.left;
     sut.configure(
       config: AnimationConfig(
         dismissDirection: dir.opposite,
-        reversible: false,
       ),
     );
     sut.update(delta: sut.screenWidth * dir.value * 0.3);

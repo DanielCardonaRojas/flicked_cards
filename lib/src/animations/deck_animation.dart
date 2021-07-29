@@ -24,7 +24,7 @@ class DeckAnimation extends AsymmetricCardAnimation {
   SwipeAnimation revealAnimation({required int relativeIndex}) {
     return (progress) {
       final dirValue = config.dismissDirection.opposite.value;
-      final compressionDiff = 0.06;
+      const compressionDiff = 0.06;
       double p = progress * dirValue;
       p = config.reversible ? p : -p.abs();
       p = layoutConfig.usesInvertedLayout ? -p : p;

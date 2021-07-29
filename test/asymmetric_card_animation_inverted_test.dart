@@ -10,9 +10,7 @@ void main() {
   setUp(() {
     sut = TestStackAnimation();
     sut.layoutConfig.usesInvertedLayout = true;
-    sut.config = AnimationConfig(
-      dismissDirection: SwipeDirection.left,
-    );
+    sut.config = AnimationConfig();
   });
 
   test(
@@ -27,7 +25,7 @@ void main() {
   test(
       'Next card animation at dismissDirection is equal to the currentCard at 0',
       () {
-    final dismissDir = SwipeDirection.right;
+    const dismissDir = SwipeDirection.right;
     sut.config = sut.config.copyWith(dismissDirection: dismissDir);
     final nextCardAnimation =
         sut.animationForCard(relativeIndex: 1).call(dismissDir.value);
@@ -38,7 +36,7 @@ void main() {
   test(
       'Current card at opposite of dismissDirection (reversing) is equal to previous card animation at 0',
       () {
-    final dismissDir = SwipeDirection.right;
+    const dismissDir = SwipeDirection.right;
     sut.config = sut.config.copyWith(dismissDirection: dismissDir);
 
     final currentCardAnimation =

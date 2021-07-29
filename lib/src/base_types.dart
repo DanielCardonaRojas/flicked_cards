@@ -8,9 +8,9 @@ enum SwipeDirection { left, right }
 extension SwipeDirectionValue on SwipeDirection {
   double get value {
     switch (this) {
-      case (SwipeDirection.left):
+      case SwipeDirection.left:
         return -1;
-      case (SwipeDirection.right):
+      case SwipeDirection.right:
         return 1;
       default:
         return 0;

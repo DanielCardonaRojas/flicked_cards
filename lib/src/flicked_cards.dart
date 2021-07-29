@@ -4,27 +4,32 @@ import 'package:flutter/material.dart';
 import 'animation_state.dart';
 import 'card_animation.dart';
 
-class FlickeredCards extends StatefulWidget {
+/// A gesture driven widget to animate cards
+class FlickedCards extends StatefulWidget {
   final ProgressBuilder builder;
   final SwipeCompletion? onSwiped;
   final CardAnimation animationStyle;
   final bool debug;
   final int count;
 
-  FlickeredCards({
+  /// Main constructor
+  /// [builder] a closure that builds a widget from a relative index and swipe progress
+  /// [count] the total number of cards
+  /// [animationStyle] the animation to be used
+  const FlickedCards({
     Key? key,
     required this.builder,
     required this.count,
     required this.animationStyle,
     this.onSwiped,
     this.debug = false,
-  });
+  }) : super(key: key);
 
   @override
-  _FlickeredCardsState createState() => _FlickeredCardsState();
+  _FlickedCardsState createState() => _FlickedCardsState();
 }
 
-class _FlickeredCardsState extends State<FlickeredCards>
+class _FlickedCardsState extends State<FlickedCards>
     with TickerProviderStateMixin {
   late AnimationState _animationState;
   bool _isDragging = false;
@@ -32,7 +37,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
 
   bool get isIddle => !(_isDragging || _isAnimating);
 
-  Map<int, Widget> _cached = {};
+  final Map<int, Widget> _cached = {};
   AnimationController? _finishingAnimationController;
   Animation<double>? _finishingAnimation;
 
@@ -113,7 +118,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
     // _animationState.log();
 
     return GestureDetector(
-      key: Key('FlickedCardsGesture'),
+      key: const Key('FlickedCardsGesture'),
       // behavior: HitTestBehavior.translucent,
       onHorizontalDragUpdate: (details) {
         _handleDrag(width: size.width, delta: details.delta.dx);
@@ -130,7 +135,6 @@ class _FlickeredCardsState extends State<FlickeredCards>
         _completeAnimations(normalizedVelocity);
       },
       child: Stack(
-        clipBehavior: Clip.hardEdge,
         children: [
           AnimatedPositioned(
             duration: const Duration(milliseconds: 400),
@@ -179,7 +183,7 @@ class _FlickeredCardsState extends State<FlickeredCards>
 
     if (index < 0 || index >= widget.count) return null;
 
-    var cardProgress = state.cardProgress(relativeIndex: relativeIndex);
+    final cardProgress = state.cardProgress(relativeIndex: relativeIndex);
 
     final card = widget.builder(index, cardProgress, context);
 

@@ -1,7 +1,12 @@
 import 'base_types.dart';
 
+/// A configuration object for [CardAnimation] used to
+/// determine the number of cards used in the animation
 class LayoutConfig {
+  /// The number of cards after the current card
   final int cardsAfter;
+
+  /// The number of cards before the current card
   final int cardsBefore;
 
   /// Animations can opt in to support 2 types of animations the either incrementally pile or removes from a pile
@@ -10,14 +15,20 @@ class LayoutConfig {
   /// Also note that for the index 0 Previous will not be shown.
   bool usesInvertedLayout;
 
+  /// A configuration object for [CardAnimation] used to
+  /// determine the number of cards used in the animation
+  /// [cardsAfter] the required cards after the current used in the animation
+  /// [cardsBefore] the required cards before the current used in the animation
   LayoutConfig({
     this.cardsAfter = 1,
     this.cardsBefore = 1,
     this.usesInvertedLayout = false,
   });
 
-  List<int> relativeIndicesForLayout({required cardCount}) {
-    var result = <int>[];
+  /// returns a list of relative indices from current card index
+  /// as specified by cardsAfter and cardsBefore
+  List<int> relativeIndicesForLayout({required int cardCount}) {
+    final result = <int>[];
     for (var i = -cardsBefore; i <= cardsAfter; i++) {
       if (i >= cardCount) continue;
       result.add(i);
@@ -28,7 +39,10 @@ class LayoutConfig {
     return result;
   }
 
-  List<int> indicesForLayout({required int currentIndex, required cardCount}) {
+  /// returns a list of absolute indices from current card index
+  /// as specified by cardsAfter and cardsBefore
+  List<int> indicesForLayout(
+      {required int currentIndex, required int cardCount}) {
     final relativeIndices = relativeIndicesForLayout(cardCount: cardCount);
     final result = relativeIndices
         .map((e) => e + currentIndex)
@@ -38,15 +52,25 @@ class LayoutConfig {
   }
 }
 
+/// A configuration object used to determine the
+/// gesture behaviour of a [CardAnimation]
 class AnimationConfig {
+  /// Swipe direction for dismissing the current card
   final SwipeDirection dismissDirection;
+
+  /// Can go back to previous card ?
   final bool reversible;
 
+  /// CardAnimation swipe configuration [dissmissDirection] either left of right,
+  /// [reversible] determines if can navigate to previous cards or can only walk through the
+  /// cards once.
   AnimationConfig({
     this.dismissDirection = SwipeDirection.left,
     this.reversible = false,
   });
 
+  /// Returns a copy of this object by ovewriting properties with
+  /// the supplied arguments
   AnimationConfig copyWith({
     SwipeDirection? dismissDirection,
     bool? reversible,

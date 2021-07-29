@@ -42,6 +42,26 @@ Here are some of the animation provided out of the box, take a look at the examp
 
 Cards used in these examples where taken from [Brocodev](https://github.com/brocodev/flutter_projects) 
 
+**Example usage**
+```dart
+FlickedCards(
+  count: Superhero.marvelHeroes.length,
+  debug: false,
+  animationStyle: FlipAnimation(),
+  onSwiped: (idx, dir) => print('>>> $dir $idx'),
+  builder: (index, progress, context) {
+    final superHeroe = Superhero.marvelHeroes[index];
+    return Container(
+      child: Center(
+        child: SuperheroCard(
+            superhero: superHeroe,
+            factorChange: 1 - progress),
+      ),
+    );
+  },
+)
+```
+
 # Custom animations
 
 `flicked_cards` provides an easy way to create custom animations but it is required to have a basic understanding
@@ -91,6 +111,8 @@ Additionally to make this process a bit easier, 2 extra abstract classes that im
 - `AsymmetricCardAnimation`
 
 Carousel animation is an example of a `SymmetricCardAnimation` take a look [here](https://github.com/DanielCardonaRojas/flicked_cards/blob/main/lib/src/animations/carousel_animation.dart)
+
+If struggling to make the animationlook at how the animations provided out of the box where implemented: [here](https://github.com/DanielCardonaRojas/flicked_cards/tree/main/lib/src/animations)
 
 ## Available layouts
 

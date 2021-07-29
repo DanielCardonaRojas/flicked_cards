@@ -3,6 +3,7 @@ import 'base_types.dart';
 part 'animation_progress.dart';
 
 class AnimationState {
+  /// The total number of cards in FlickedCards
   final int cardCount;
   static const defaultScreenWidth = 300.0;
 
@@ -63,14 +64,17 @@ class AnimationState {
     return null;
   }
 
+  /// Is reversing or advancing ?
   bool get reversing {
     return movingDirection != config.dismissDirection &&
         config.reversible &&
         movingDirection != null;
   }
 
+  /// Calculates target direction -1 or 1 depending on
+  /// current progress and [AnimationConfig]
   double get targetDirection {
-    double target = _progress.value.isNegative ? -1 : 1;
+    final double target = _progress.value.isNegative ? -1 : 1;
     final advances =
         target * config.dismissDirection.value == 1 || !config.reversible;
     final targetIndex = currentIndex + target * config.dismissDirection.value;
@@ -106,10 +110,13 @@ class AnimationState {
     // Convert to range -1, 1
   }
 
+  // ignore: use_setters_to_change_properties
+  /// Modify progress value manually
   void scrub({required double target}) {
     _progress.value = target;
   }
 
+  /// Resets progress value to zero
   void reset() {
     _progress.value = 0;
     positionX = screenWidth * .5;
@@ -119,6 +126,8 @@ class AnimationState {
     currentIndex = targetIndex;
   }
 
+  // ignore: use_setters_to_change_properties
+  /// Update to use [config] in calculations
   void configure({required AnimationConfig config}) {
     this.config = config;
   }
@@ -133,7 +142,7 @@ class AnimationState {
     double? signedProgress,
     NumericCompute? calculation,
   }) {
-    var state = AnimationState(config: config, cardCount: cardCount);
+    final state = AnimationState(config: config, cardCount: cardCount);
     state._progress.value = signedProgress ?? _progress.value;
     state.currentIndex = currentIndex;
     state.positionX = positionX;

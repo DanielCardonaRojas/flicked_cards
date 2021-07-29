@@ -1,7 +1,8 @@
 name: flicked_cards
 description: A gesture driven customizable and extensible card widget
-version: 0.0.1
+version: 0.0.2
 homepage: https://danielcardona.dev
+repository: https://github.com/DanielCardonaRojas/flicked_cards
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -12,8 +13,9 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  mocktail:
   flutter_test:
     sdk: flutter
+  lint: ^1.5.3
+  mocktail:
 
 flutter:

@@ -94,6 +94,7 @@ abstract class SymmetricCardAnimation extends CardAnimation {
 }
 
 extension CardAnimationX on CardAnimation {
+  /// Calculate the moving direction
   SwipeDirection? movingDirection(double progress) {
     if (progress < 0.0) return SwipeDirection.left;
     if (progress > 0.0) return SwipeDirection.right;

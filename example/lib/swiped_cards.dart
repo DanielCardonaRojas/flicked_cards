@@ -30,29 +30,33 @@ class FlickerdCardsExample extends StatelessWidget {
         title: Text(title),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: FlickeredCards(
-                  count: Superhero.marvelHeroes.length,
-                  debug: false,
-                  animationStyle: cardAnimation,
-                  onSwiped: (idx, dir) => print('>>> $dir $idx'),
-                  builder: (index, progress, context) {
-                    final superHeroe = Superhero.marvelHeroes[index];
-                    return Container(
-                      child: Center(
-                        child: SuperheroCard(
-                            superhero: superHeroe, factorChange: 1 - progress),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+          child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 500),
+              child: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: FlickedCards(
+                          count: Superhero.marvelHeroes.length,
+                          debug: false,
+                          animationStyle: cardAnimation,
+                          onSwiped: (idx, dir) => print('>>> $dir $idx'),
+                          builder: (index, progress, context) {
+                            final superHeroe = Superhero.marvelHeroes[index];
+                            return Container(
+                              child: Center(
+                                child: SuperheroCard(
+                                    superhero: superHeroe,
+                                    factorChange: 1 - progress),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ]),
-      ),
+                    ]),
+              ))),
     );
   }
 }

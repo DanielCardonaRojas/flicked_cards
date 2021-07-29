@@ -16,10 +16,8 @@ class RollAnimation extends AsymmetricCardAnimation {
   }
 
   @override
-  AnimationConfig get config => AnimationConfig(
-        reversible: false,
-      );
+  AnimationConfig get config => AnimationConfig();
 
   @override
-  LayoutConfig get layoutConfig => LayoutConfig(cardsBefore: 0, cardsAfter: 1);
+  LayoutConfig get layoutConfig => LayoutConfig(cardsBefore: 0);
 }

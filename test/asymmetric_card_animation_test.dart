@@ -37,7 +37,7 @@ void main() {
   test(
       'Next card animation evaluates to the currentCard at 0 when progress is completed and advancing',
       () {
-    final dismissDir = SwipeDirection.right;
+    const dismissDir = SwipeDirection.right;
     sut.config = sut.config.copyWith(dismissDirection: dismissDir);
     final nextCardAnimation =
         sut.animationForCard(relativeIndex: 1).call(dismissDir.value);
@@ -48,7 +48,7 @@ void main() {
   test(
       'Previous card animation evaluates to the identity matrix when progress is completed and reversing',
       () {
-    final dismissDir = SwipeDirection.left;
+    const dismissDir = SwipeDirection.left;
     sut.config = sut.config.copyWith(dismissDirection: dismissDir);
     // sut.state.scrub(target: dismissDir.opposite.value * 0.3);
 
@@ -60,10 +60,9 @@ void main() {
   test(
       'Current card animation matches nextCards animation when progress complete and reversing',
       () {
-    final dismissDir = SwipeDirection.left;
+    const dismissDir = SwipeDirection.left;
 
-    sut.config =
-        AnimationConfig(dismissDirection: dismissDir, reversible: true);
+    sut.config = AnimationConfig(reversible: true);
 
     final currentCardAnimation =
         sut.animationForCard(relativeIndex: 0).call(dismissDir.opposite.value);

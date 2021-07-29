@@ -1,13 +1,12 @@
-import 'package:flicked_cards/flicked_cards.dart';
 import 'package:flicked_cards/src/animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collection/collection.dart';
 
 void main() {
-  Function eq = const ListEquality().equals;
+  final eq = const ListEquality().equals;
   test('returns range with non negative indices when current index is zero',
       () {
-    final sut = LayoutConfig(cardsAfter: 2, cardsBefore: 1);
+    final sut = LayoutConfig(cardsAfter: 2);
     final result = sut.indicesForLayout(currentIndex: 0, cardCount: 10);
     assert(eq(result, [0, 1, 2]));
   });
@@ -36,9 +35,9 @@ void main() {
   test(
       'relativeIndicesForLayout always returns an array of size cardsAfter + cardsBefore + 1',
       () {
-    final before = 7;
-    final after = 2;
-    final count = before + after + 1;
+    const before = 7;
+    const after = 2;
+    const count = before + after + 1;
     final sut = LayoutConfig(cardsAfter: after, cardsBefore: before);
     assert(sut.relativeIndicesForLayout(cardCount: 10).length == count);
   });

@@ -14,8 +14,8 @@ class MockCallable<T> extends Mock implements Callable<T> {}
 typedef BuildInspector = void Function(int, double);
 
 void main() {
-  FlickeredCards _createWidgetForTesting({BuildInspector? inspector}) {
-    final widget = FlickeredCards(
+  FlickedCards _createWidgetForTesting({BuildInspector? inspector}) {
+    final widget = FlickedCards(
         builder: (idx, progress, context) {
           inspector?.call(idx, progress);
           final cardKey = Key('Card${idx}Key');
@@ -33,7 +33,7 @@ void main() {
   );
 
   testWidgets('Finds card 0 on first build', (WidgetTester tester) async {
-    final cardZeroFinder = find.byKey(Key('Card0Key'));
+    final cardZeroFinder = find.byKey(const Key('Card0Key'));
     final widget = _createWidgetForTesting();
 
     await tester.pumpMyWidget(widget);
@@ -86,7 +86,7 @@ void main() {
 
   testWidgets('can find geture detector inner gesture',
       (WidgetTester tester) async {
-    final gestureWidgetFinder = find.byKey(Key('FlickedCardsGesture'));
+    final gestureWidgetFinder = find.byKey(const Key('FlickedCardsGesture'));
 
     final widget = _createWidgetForTesting();
 
@@ -98,7 +98,7 @@ void main() {
 
   testWidgets('widget is found and has non zero size',
       (WidgetTester tester) async {
-    final finder = find.byType(FlickeredCards);
+    final finder = find.byType(FlickedCards);
     final widget = _createWidgetForTesting();
 
     await tester.pumpMyWidget(widget);
@@ -140,7 +140,7 @@ void main() {
 }
 
 extension WidgetTesterX on WidgetTester {
-  Future<void> pumpMyWidget(FlickeredCards widget) {
+  Future<void> pumpMyWidget(FlickedCards widget) {
     return pumpWidget(
       MaterialApp(
         home: Scaffold(
