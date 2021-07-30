@@ -23,7 +23,7 @@ A gesture driven card swipping widget supporting custom animations.
 
 ## Features
 
-- Awesome default behaviours provided
+- Awesome default animations provided out of the box
 - Progress through cards swipping both direction or in a single direction
 - Extensible through custom provided animations
 - Support piling or popping (depending on animation spec)
@@ -46,7 +46,6 @@ Cards used in these examples where taken from [Brocodev](https://github.com/broc
 ```dart
 FlickedCards(
   count: Superhero.marvelHeroes.length,
-  debug: false,
   animationStyle: FlipAnimation(),
   onSwiped: (idx, dir) => print('>>> $dir $idx'),
   builder: (index, progress, context) {
@@ -114,7 +113,7 @@ Carousel animation is an example of a `SymmetricCardAnimation` take a look [here
 
 If struggling to make the animationlook at how the animations provided out of the box where implemented: [here](https://github.com/DanielCardonaRojas/flicked_cards/tree/main/lib/src/animations)
 
-## Available layouts
+## Card layouts
 
 Internally cards are placed in `Stack` widget so an animation can choose to work with a single or both of the following 
 layouts:
@@ -127,7 +126,4 @@ Note that depending on the index some of cards will not be displayed:
 ![](https://github.com/DanielCardonaRojas/flicked_cards/raw/main/cards_final_layout.png)
 
 
-## TODO
 
-- Add sensitivity parameter for wider screens.
-- Fix Deck Animation not constant card separation make last and before aligned

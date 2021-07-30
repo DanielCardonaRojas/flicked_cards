@@ -29,8 +29,5 @@ class FlipAnimation extends CardAnimation {
       FractionalOffset.center;
 
   @override
-  AnimationConfig get config => AnimationConfig();
-
-  @override
   LayoutConfig get layoutConfig => LayoutConfig(cardsBefore: 0);
 }

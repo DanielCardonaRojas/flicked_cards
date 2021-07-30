@@ -66,7 +66,7 @@ class MenuPage extends StatelessWidget {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => FlickerdCardsExample(
+                builder: (context) => FlickedCardsExample(
                       cardAnimation: animation,
                       title: title,
                     ))),

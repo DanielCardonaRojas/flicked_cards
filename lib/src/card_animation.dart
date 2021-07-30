@@ -7,15 +7,20 @@ import 'animation_config.dart';
 
 part './animations/deck_animation.dart';
 part './animations/carousel_animation.dart';
-part './animations/circular_animation.dart';
+part 'animations/roll_animation.dart';
 part './animations/flip_animation.dart';
 
 typedef SwipeAnimation = Matrix4 Function(double progress);
 typedef OpacityAnimation = double Function(double progress);
 
+/// Base contract for all animations
 abstract class CardAnimation {
-  AnimationConfig get config;
-  LayoutConfig get layoutConfig;
+  /// The size of the device as specified by MediaQuery
+  Size? screenSize;
+
+  AnimationConfig get config => AnimationConfig();
+
+  LayoutConfig get layoutConfig => LayoutConfig();
 
   SwipeAnimation animationForCard({required int relativeIndex});
 
@@ -23,7 +28,8 @@ abstract class CardAnimation {
     return (_) => 1;
   }
 
-  FractionalOffset fractionalOffsetForCard({required int relativeIndex});
+  FractionalOffset fractionalOffsetForCard({required int relativeIndex}) =>
+      FractionalOffset.bottomCenter;
 }
 
 /// Animation in which the dismissed and the next card have
@@ -31,10 +37,6 @@ abstract class CardAnimation {
 abstract class AsymmetricCardAnimation extends CardAnimation {
   SwipeAnimation get dismissAnimation;
   SwipeAnimation revealAnimation({required int relativeIndex});
-
-  @override
-  FractionalOffset fractionalOffsetForCard({required int relativeIndex}) =>
-      FractionalOffset.bottomCenter;
 
   @override
   SwipeAnimation animationForCard({required int relativeIndex}) {
@@ -74,10 +76,6 @@ abstract class AsymmetricCardAnimation extends CardAnimation {
 /// animated with same dismissAnimation and applying an offset.
 abstract class SymmetricCardAnimation extends CardAnimation {
   SwipeAnimation get revealAnimation;
-
-  @override
-  FractionalOffset fractionalOffsetForCard({required int relativeIndex}) =>
-      FractionalOffset.bottomCenter;
 
   @override
   SwipeAnimation animationForCard({required int relativeIndex}) {

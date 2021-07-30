@@ -84,7 +84,6 @@ class _FlickedCardsState extends State<FlickedCards>
               if (targetValue == null) return;
               _isAnimating = true;
               _animationState.scrub(target: targetValue);
-              // _animationState = _animationState.copyWith();
             });
           })
           ..addStatusListener((status) {
@@ -173,7 +172,10 @@ class _FlickedCardsState extends State<FlickedCards>
     required BuildContext context,
     required int relativeIndex,
   }) {
+    final screenSize = MediaQuery.of(context).size;
     final spec = widget.animationStyle;
+    spec.screenSize = screenSize;
+
     final offset = spec.fractionalOffsetForCard(relativeIndex: relativeIndex);
     final transformation = spec.animationForCard(relativeIndex: relativeIndex);
     final opacity = spec.opacityForCard(relativeIndex: relativeIndex);

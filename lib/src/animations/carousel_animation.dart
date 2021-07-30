@@ -3,7 +3,7 @@ part of '../card_animation.dart';
 /// A Carousel animation
 class CarouselAnimation extends SymmetricCardAnimation {
   /// Spacing between subsequent cards
-  final double cardSpacing;
+  final double cardSpacingWidthFactor;
 
   /// The dismiss direction
   final SwipeDirection dismissDirection;
@@ -11,17 +11,16 @@ class CarouselAnimation extends SymmetricCardAnimation {
   // ignore: public_member_api_docs
   CarouselAnimation({
     required this.dismissDirection,
-    this.cardSpacing = 500,
+    this.cardSpacingWidthFactor = 1,
   });
   @override
   AnimationConfig get config =>
       AnimationConfig(dismissDirection: dismissDirection, reversible: true);
 
   @override
-  LayoutConfig get layoutConfig => LayoutConfig();
-
-  @override
   SwipeAnimation get revealAnimation {
-    return (progress) => Matrix4.identity()..translate(cardSpacing * progress);
+    return (progress) => Matrix4.identity()
+      ..translate(
+          cardSpacingWidthFactor * (screenSize?.width ?? 500) * progress);
   }
 }
