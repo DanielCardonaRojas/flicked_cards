@@ -1,5 +1,7 @@
 import 'animation_config.dart';
 import 'base_types.dart';
+import 'utils.dart';
+
 part 'animation_progress.dart';
 
 class AnimationState {

@@ -1,23 +1,13 @@
-import 'dart:math';
-
 import 'package:example/superheroes/superhero.dart';
 import 'package:example/superheroes/superhero_card.dart';
 import 'package:flicked_cards/flicked_cards.dart';
 import 'package:flutter/material.dart';
 
-class FlickedCardsExample extends StatelessWidget {
+class SuperheroesExample extends StatelessWidget {
   final CardAnimation cardAnimation;
   final String title;
 
-  static const colors = <Color>[
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.orange,
-  ];
-
-  const FlickedCardsExample({
+  const SuperheroesExample({
     Key? key,
     required this.cardAnimation,
     required this.title,

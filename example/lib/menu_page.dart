@@ -1,5 +1,6 @@
-import 'package:example/swiped_cards.dart';
+import 'superheroes/superheroes_example.dart';
 import 'package:flicked_cards/flicked_cards.dart';
+import 'shoes_store/shoe_store_example.dart';
 import 'package:flutter/material.dart';
 
 class MenuPage extends StatelessWidget {
@@ -51,10 +52,30 @@ class MenuPage extends StatelessWidget {
                     title: 'carousel + swipe right',
                     animation: CarouselAnimation(
                         dismissDirection: SwipeDirection.right)),
+                _buildShoeStoreExample(
+                    context: context,
+                    title: 'perspective carousel + swipe left',
+                    animation: PerspectiveCarouselAnimation()),
               ],
             ),
           )),
     );
+  }
+
+  TextButton _buildShoeStoreExample({
+    required BuildContext context,
+    required String title,
+    required CardAnimation animation,
+  }) {
+    return TextButton(
+        onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ShoeStoreExample(
+                      cardAnimation: animation,
+                      title: title,
+                    ))),
+        child: Text(title));
   }
 
   TextButton _buildExample({
@@ -66,7 +87,7 @@ class MenuPage extends StatelessWidget {
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => FlickedCardsExample(
+                builder: (context) => SuperheroesExample(
                       cardAnimation: animation,
                       title: title,
                     ))),

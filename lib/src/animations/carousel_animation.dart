@@ -13,6 +13,7 @@ class CarouselAnimation extends SymmetricCardAnimation {
     required this.dismissDirection,
     this.cardSpacingWidthFactor = 1,
   });
+
   @override
   AnimationConfig get config =>
       AnimationConfig(dismissDirection: dismissDirection, reversible: true);

@@ -7,8 +7,9 @@ import 'animation_config.dart';
 
 part './animations/deck_animation.dart';
 part './animations/carousel_animation.dart';
-part 'animations/roll_animation.dart';
+part './animations/roll_animation.dart';
 part './animations/flip_animation.dart';
+part './animations/perspective_carousel_animation.dart';
 
 typedef SwipeAnimation = Matrix4 Function(double progress);
 typedef OpacityAnimation = double Function(double progress);
