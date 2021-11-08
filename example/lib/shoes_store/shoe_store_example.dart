@@ -1,6 +1,3 @@
-import 'dart:math';
-import 'dart:ui';
-
 import 'package:flicked_cards/flicked_cards.dart';
 import 'package:flutter/material.dart';
 import 'shoe.dart';
